@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "betterllama": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.betterllama.com/mcp"]
+    }
+  }
+}
