@@ -64,7 +64,7 @@ Consejo para agentes: llama primero `search_tools` con la tarea ("valor UF", "li
 
 **Claude Desktop / claude.ai**: Settings > Connectors > Add custom connector, URL `https://mcp.betterllama.com/mcp`. Si tu versión solo acepta servidores locales, usa el puente `mcp-remote` de [`config/claude_desktop_config.json`](config/claude_desktop_config.json) (requiere Node.js).
 
-**n8n**: agrega el nodo *MCP Client Tool* a un AI Agent, Endpoint `https://mcp.betterllama.com/mcp`, Server Transport *HTTP Streamable*, Authentication *None*. Elige "All" o selecciona herramientas.
+**n8n**: agrega el nodo *MCP Client Tool* a un AI Agent, Endpoint `https://mcp.betterllama.com/mcp`, Server Transport *HTTP Streamable*, Authentication *None*. Elige "All" o selecciona herramientas. O importa el workflow listo [`n8n/chile-data-mcp-workflow.json`](n8n/chile-data-mcp-workflow.json) (menú *Import from File*: Chat Trigger + AI Agent + MCP Client Tool; solo elige tu credencial del modelo).
 
 **curl**:
 
@@ -109,6 +109,7 @@ Python 3.10+. Tested with Python 3.13, httpx 0.28 and mcp 2.3.0. With mcp 1.x, i
 - Tool results come as a JSON string in `content[0].text`, with the official source attribution. Please cite the source when showing data.
 - `search_chile_public_tenders` and `get_santiago_stock_exchange_data` need your own free provider key (bring your own key). All other tools work without a key.
 - Client setup (Cursor, VS Code, Claude Desktop, n8n, curl): see the Spanish section above and `config/`.
+- n8n: import [`n8n/chile-data-mcp-workflow.json`](n8n/chile-data-mcp-workflow.json) (*Import from File*): Chat Trigger + AI Agent + MCP Client Tool pointing to `https://mcp.betterllama.com/mcp` (HTTP Streamable, no auth). Just pick your chat-model credential.
 - Free beta: the server applies per-IP rate limits; be gentle with loops.
 
 ---

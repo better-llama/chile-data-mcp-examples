@@ -1,0 +1,148 @@
+{
+  "name": "Better Llama · Chile data MCP (AI Agent + MCP Client Tool)",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "9496357b-2f55-4f43-8d42-363043117ce2",
+      "name": "When chat message received",
+      "webhookId": "a5907145-ef36-416a-ba56-100c536bc948"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Eres un asistente con acceso a datos públicos de Chile mediante el MCP de Better Llama. Usa primero la herramienta search_tools con la tarea del usuario para elegir la herramienta adecuada y luego llámala. Responde en el idioma del usuario y cita siempre la fuente oficial del campo attribution. Si una herramienta requiere una clave propia (access = byok), explica qué encabezado configurar; nunca pidas claves en el chat."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        260,
+        0
+      ],
+      "id": "447c9b94-aad0-459f-b597-0819316ddf46",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        120,
+        240
+      ],
+      "id": "41c80240-0d3a-4426-9d23-17a109d22423",
+      "name": "OpenAI Chat Model"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        300,
+        240
+      ],
+      "id": "67441f86-e7a0-44fb-8f6c-d638888a0208",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "https://mcp.betterllama.com/mcp",
+        "serverTransport": "httpStreamable",
+        "authentication": "none",
+        "include": "all",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        480,
+        240
+      ],
+      "id": "da8ab693-de09-4669-b170-64c1f1dccb7b",
+      "name": "Better Llama MCP"
+    },
+    {
+      "parameters": {
+        "content": "## Better Llama · Chile data MCP\nMCP Client Tool → https://mcp.betterllama.com/mcp (HTTP Streamable, sin autenticación durante la beta).\n\n1. Elige tu credencial en **OpenAI Chat Model** (o cambia el modelo por otro proveedor).\n2. Abre el chat y pregunta, por ejemplo: «¿Cuál es el valor de la UF hoy?» o «¿Dónde está la bencina 95 más barata en Ñuñoa?».\n\nhttps://github.com/better-llama/chile-data-mcp-examples",
+        "height": 300,
+        "width": 420
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        -80
+      ],
+      "id": "107c8812-6758-42f5-af1e-1fa0f9b24b46",
+      "name": "Sticky Note"
+    }
+  ],
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Better Llama MCP": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}
