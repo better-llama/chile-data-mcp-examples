@@ -1,8 +1,8 @@
 # chile-data-mcp-examples
 
-Ejemplos ejecutables para usar el servidor MCP gratuito (beta) de [Better Llama](https://betterllama.com) con datos públicos de Chile: indicadores económicos (CMF, Banco Central), precios de bencina (CNE), sismos (USGS), Mercado Público, Chilexpress, Diario Oficial, mercado eléctrico, Bolsa de Santiago, feriados y RUT.
+Ejemplos ejecutables para usar el servidor MCP gratuito (beta) de [Better Llama](https://betterllama.com) con datos públicos de Chile y Colombia: indicadores económicos (CMF, Banco Central), precios de bencina (CNE), sismos (USGS), Mercado Público, Chilexpress, Diario Oficial, mercado eléctrico, Bolsa de Santiago, feriados y RUT. Nuevo: compras públicas de Colombia (SECOP II).
 
-Runnable examples for Better Llama's free (beta) MCP server with Chilean public data. English below.
+Runnable examples for Better Llama's free (beta) MCP server with Chilean and Colombian public data. English below.
 
 | | |
 |---|---|
@@ -10,7 +10,7 @@ Runnable examples for Better Llama's free (beta) MCP server with Chilean public 
 | Transporte / Transport | Streamable HTTP, sin autenticación / anonymous |
 | Header requerido / required | `Accept: application/json, text/event-stream` |
 | Registry id | `com.betterllama/chile-data` |
-| Herramientas / Tools | 11 (`tools/list`) |
+| Herramientas / Tools | 12 (`tools/list`) |
 
 ---
 
@@ -24,9 +24,10 @@ cd chile-data-mcp-examples
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 cd python
-python list_tools.py       # lista las 11 herramientas
+python list_tools.py       # lista las 12 herramientas
 python indicadores.py      # UF, dólar, UTM (CMF) + TPM, IMACEC (Banco Central)
 python bencina.py 93 Ñuñoa # bencina más barata en una comuna (CNE)
+python secop_colombia.py software Antioquia 100000000  # contratos SECOP II (Colombia)
 python agent_mcp_sdk.py    # SDK oficial "mcp": search_tools + sismos
 ```
 
@@ -40,12 +41,13 @@ Requiere Python 3.10+. Probado con Python 3.13, httpx 0.28 y mcp 2.3.0.
 | `python/list_tools.py` | Lista herramientas y sus argumentos. |
 | `python/indicadores.py` | `get_chile_financial_indicators` y `get_chile_central_bank_series`. |
 | `python/bencina.py` | `find_chile_fuel_prices` ordenado por precio. |
+| `python/secop_colombia.py` | `colombia_secop_search`: contratos o procesos de compras públicas de Colombia (SECOP II, datos.gov.co). |
 | `python/agent_mcp_sdk.py` | Cliente con el SDK oficial de MCP para Python (streamable HTTP). |
 | `config/` | Configuración para Cursor, VS Code y Claude Desktop. |
 
 ### Herramientas
 
-- Sin clave: `search_tools`, `get_chile_financial_indicators`, `get_chile_central_bank_series`, `find_chile_fuel_prices`, `get_chile_electricity_market`, `search_chile_official_gazette`, `get_chile_earthquakes`, `chile_calendar_and_rut` (algunas usan una clave compartida del servidor; no necesitas la tuya).
+- Sin clave: `search_tools`, `get_chile_financial_indicators`, `get_chile_central_bank_series`, `find_chile_fuel_prices`, `get_chile_electricity_market`, `search_chile_official_gazette`, `get_chile_earthquakes`, `chile_calendar_and_rut`, `colombia_secop_search` (algunas usan una clave compartida del servidor; no necesitas la tuya).
 - Trae tu clave gratuita: `search_chile_public_tenders` (ticket de [ChileCompra](https://www.chilecompra.cl/api/), argumento `ticket` o header `X-MercadoPublico-Ticket`), `get_santiago_stock_exchange_data` (`apiKey`). `chilexpress_shipping` acepta tus claves para cotizar y seguir envíos.
 
 Las claves se envían por solicitud y el servidor no las guarda. No las subas a git: usa variables de entorno.
@@ -82,6 +84,7 @@ curl -s https://mcp.betterllama.com/mcp \
 - [API bencina Chile](https://betterllama.com/guias/api-bencina-chile/)
 - [API Chilexpress](https://betterllama.com/guias/api-chilexpress/)
 - [API sismos Chile](https://betterllama.com/guias/api-sismos-chile/)
+- [API SECOP II Colombia](https://betterllama.com/guias/api-secop-colombia/)
 
 ---
 
@@ -95,9 +98,10 @@ cd chile-data-mcp-examples
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 cd python
-python list_tools.py        # list the 11 tools
+python list_tools.py        # list the 12 tools
 python indicadores.py       # UF, USD, UTM (CMF) + policy rate, IMACEC (Central Bank)
 python bencina.py 93 Ñuñoa  # cheapest gasoline in a comuna (CNE)
+python secop_colombia.py software Antioquia 100000000  # Colombia SECOP II contracts
 python agent_mcp_sdk.py     # official "mcp" SDK: search_tools + earthquakes
 ```
 
@@ -110,13 +114,14 @@ Python 3.10+. Tested with Python 3.13, httpx 0.28 and mcp 2.3.0. With mcp 1.x, i
 - `search_chile_public_tenders` and `get_santiago_stock_exchange_data` need your own free provider key (bring your own key). All other tools work without a key.
 - Client setup (Cursor, VS Code, Claude Desktop, n8n, curl): see the Spanish section above and `config/`.
 - n8n: import [`n8n/chile-data-mcp-workflow.json`](n8n/chile-data-mcp-workflow.json) (*Import from File*): Chat Trigger + AI Agent + MCP Client Tool pointing to `https://mcp.betterllama.com/mcp` (HTTP Streamable, no auth). Just pick your chat-model credential.
+- Colombia: `colombia_secop_search` searches SECOP II signed contracts (`dataset: contratos`) or published processes (`procesos`) from datos.gov.co (CC BY-SA 4.0), no key. Guide: [Colombia SECOP API](https://betterllama.com/en/guides/colombia-secop-api/).
 - Free beta: the server applies per-IP rate limits; be gentle with loops.
 
 ---
 
 ## Salida real / Real output
 
-Ejecutado el 2026-11-19 / Run on 2026-11-19 (Chile time). Los valores cambian a diario / values change daily.
+Ejecutado el 2026-11-19 / Run on 2026-11-19 (Chile time; antes de agregar SECOP, por eso 11 herramientas / before SECOP was added, hence 11 tools). Los valores cambian a diario / values change daily.
 
 `python list_tools.py` (truncated):
 
@@ -177,6 +182,50 @@ Last 2 earthquakes M>=4.5 (Chile time):
   M4.6  2026-11-13T20:55:15-03:00  100 km WSW of Lebu, Chile  depth 10 km
 ```
 
+`python secop_colombia.py software Antioquia 100000000` (2026-11-20):
+
+```text
+SECOP II contratos: 'software' in Antioquia (>= COP 100,000,000), 5 shown, newest first:
+
+  2026-11-06  COP 373,227,554  [En ejecución]
+  INSTITUCIÓN UNIVERSITARIA ITM (Medellín)
+  RENOVACIÓN DEL SOPORTE Y GARANTÍA PARA SOFTWARE Y EQUIPOS DE MISIÓN CRÍTICA PARA LA INSTITUCIÓN UNIVERSITARIA ITM; DE ACUERDO CON LAS ESPECI
+  Proveedor: AXIS IT (NIT 900733550)
+  https://community.secop.gov.co/Public/Tendering/OpportunityDetail/Index?noticeUID=CO1.NTC.11062770&isFromPublicArea=True&isModal=true&asPopupView=true
+
+  2026-11-05  COP 168,510,895  [Aprobado]
+  POLITECNICO COLOMBIANO JAIME ISAZA CADAVID (Medellín)
+  Licenciamiento de software Microsoft bajo la modalidad OVS-ES (Open Value Subscription) para el Politécnico Colombiano Jaime Isaza Cadavid
+  Proveedor: TEAM IT SAS (NIT 900446662)
+  https://community.secop.gov.co/Public/Tendering/OpportunityDetail/Index?noticeUID=CO1.NTC.11062487&isFromPublicArea=True&isModal=true&asPopupView=true
+
+  ...
+
+Fuente: Portal de Datos Abiertos www.datos.gov.co — SECOP II (Agencia Nacional de Contratación Pública – Colombia Compra Eficiente). Licencia CC BY-SA 4.0. La fecha de última actualización del conjunto viene en sourceUpdatedAt.
+
+```
+
+`python secop_colombia.py interventoría Bogotá 0 procesos` (2026-11-20):
+
+```text
+SECOP II procesos: 'interventoría' in Bogotá (>= COP 0), 5 shown, newest first:
+
+  2026-11-17  COP 115,829,101  [Publicado]
+  ALCALDIA LOCAL RAFAEL URIBE URIBE
+  REALIZAR LA INTERVENTORÍA TÉCNICA; ADMINISTRATIVA; FINANCIERA; JURÍDICA; AMBIENTAL Y SOCIAL AL CONTRATO DE OBRA PUBLICA RESULTANTE DEL PROCE
+  https://community.secop.gov.co/Public/Tendering/OpportunityDetail/Index?noticeUID=CO1.NTC.11241314
+
+  2026-11-17  COP 691,929,130  [Publicado]
+  INSTITUTO DISTRITAL DE PATRIMONIO CULTURAL (Bogotá)
+  Interventoría e iluminación Plaza Bolívar
+  https://community.secop.gov.co/Public/Tendering/OpportunityDetail/Index?noticeUID=CO1.NTC.11240793
+
+  ...
+
+Fuente: Portal de Datos Abiertos www.datos.gov.co — SECOP II (Agencia Nacional de Contratación Pública – Colombia Compra Eficiente). Licencia CC BY-SA 4.0. La fecha de última actualización del conjunto viene en sourceUpdatedAt.
+
+```
+
 ## Licencia / License
 
-MIT. Datos: propiedad de cada fuente oficial (CMF, Banco Central de Chile, CNE, USGS, ChileCompra, etc.); revisa sus términos.
+MIT. Datos: propiedad de cada fuente oficial (CMF, Banco Central de Chile, CNE, USGS, ChileCompra, Colombia Compra Eficiente / datos.gov.co, etc.); revisa sus términos.
