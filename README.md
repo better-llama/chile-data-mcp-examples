@@ -1,8 +1,8 @@
 # chile-data-mcp-examples
 
-Ejemplos ejecutables para usar el servidor MCP gratuito (beta) de [Better Llama](https://betterllama.com) con datos públicos de Chile y Colombia: indicadores económicos (CMF, Banco Central), precios de bencina (CNE), sismos (USGS), Mercado Público, Chilexpress, Diario Oficial, mercado eléctrico, Bolsa de Santiago, feriados y RUT. Nuevo: compras públicas de Colombia (SECOP II).
+Ejemplos ejecutables para usar el servidor MCP gratuito (beta) de [Better Llama](https://betterllama.com) con datos públicos de Chile, Colombia y Perú: indicadores económicos (CMF, Banco Central), precios de bencina (CNE), sismos (USGS), Mercado Público, Chilexpress, Diario Oficial, mercado eléctrico, Bolsa de Santiago, feriados y RUT. Compras públicas de Colombia (SECOP II). Nuevo: series del Banco Central de Reserva del Perú (BCRP: tipo de cambio, tasa de referencia, inflación).
 
-Runnable examples for Better Llama's free (beta) MCP server with Chilean and Colombian public data. English below.
+Runnable examples for Better Llama's free (beta) MCP server with Chilean, Colombian and Peruvian public data. English below.
 
 | | |
 |---|---|
@@ -10,7 +10,7 @@ Runnable examples for Better Llama's free (beta) MCP server with Chilean and Col
 | Transporte / Transport | Streamable HTTP, sin autenticación / anonymous |
 | Header requerido / required | `Accept: application/json, text/event-stream` |
 | Registry id | `com.betterllama/chile-data` |
-| Herramientas / Tools | 12 (`tools/list`) |
+| Herramientas / Tools | 13 (`tools/list`) |
 
 ---
 
@@ -24,10 +24,11 @@ cd chile-data-mcp-examples
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 cd python
-python list_tools.py       # lista las 12 herramientas
+python list_tools.py       # lista las 13 herramientas
 python indicadores.py      # UF, dólar, UTM (CMF) + TPM, IMACEC (Banco Central)
 python bencina.py 93 Ñuñoa # bencina más barata en una comuna (CNE)
 python secop_colombia.py software Antioquia 100000000  # contratos SECOP II (Colombia)
+python bcrp_peru.py        # tipo de cambio y tasa de referencia (BCRP, Perú)
 python agent_mcp_sdk.py    # SDK oficial "mcp": search_tools + sismos
 ```
 
@@ -42,12 +43,13 @@ Requiere Python 3.10+. Probado con Python 3.13, httpx 0.28 y mcp 2.3.0.
 | `python/indicadores.py` | `get_chile_financial_indicators` y `get_chile_central_bank_series`. |
 | `python/bencina.py` | `find_chile_fuel_prices` ordenado por precio. |
 | `python/secop_colombia.py` | `colombia_secop_search`: contratos o procesos de compras públicas de Colombia (SECOP II, datos.gov.co). |
+| `python/bcrp_peru.py` | `peru_bcrp_series`: series del BCRP (tipo de cambio, tasa de referencia, inflación, PBI, reservas) por alias o código; `--catalog` lista alias. |
 | `python/agent_mcp_sdk.py` | Cliente con el SDK oficial de MCP para Python (streamable HTTP). |
 | `config/` | Configuración para Cursor, VS Code y Claude Desktop. |
 
 ### Herramientas
 
-- Sin clave: `search_tools`, `get_chile_financial_indicators`, `get_chile_central_bank_series`, `find_chile_fuel_prices`, `get_chile_electricity_market`, `search_chile_official_gazette`, `get_chile_earthquakes`, `chile_calendar_and_rut`, `colombia_secop_search` (algunas usan una clave compartida del servidor; no necesitas la tuya).
+- Sin clave: `search_tools`, `get_chile_financial_indicators`, `get_chile_central_bank_series`, `find_chile_fuel_prices`, `get_chile_electricity_market`, `search_chile_official_gazette`, `get_chile_earthquakes`, `chile_calendar_and_rut`, `colombia_secop_search`, `peru_bcrp_series` (algunas usan una clave compartida del servidor; no necesitas la tuya).
 - Trae tu clave gratuita: `search_chile_public_tenders` (ticket de [ChileCompra](https://www.chilecompra.cl/api/), argumento `ticket` o header `X-MercadoPublico-Ticket`), `get_santiago_stock_exchange_data` (`apiKey`). `chilexpress_shipping` acepta tus claves para cotizar y seguir envíos.
 
 Las claves se envían por solicitud y el servidor no las guarda. No las subas a git: usa variables de entorno.
@@ -85,6 +87,7 @@ curl -s https://mcp.betterllama.com/mcp \
 - [API Chilexpress](https://betterllama.com/guias/api-chilexpress/)
 - [API sismos Chile](https://betterllama.com/guias/api-sismos-chile/)
 - [API SECOP II Colombia](https://betterllama.com/guias/api-secop-colombia/)
+- [API BCRP Perú](https://betterllama.com/guias/api-bcrp-peru/)
 
 ---
 
@@ -98,10 +101,11 @@ cd chile-data-mcp-examples
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 cd python
-python list_tools.py        # list the 12 tools
+python list_tools.py        # list the 13 tools
 python indicadores.py       # UF, USD, UTM (CMF) + policy rate, IMACEC (Central Bank)
 python bencina.py 93 Ñuñoa  # cheapest gasoline in a comuna (CNE)
 python secop_colombia.py software Antioquia 100000000  # Colombia SECOP II contracts
+python bcrp_peru.py         # Peru exchange rate + policy rate (BCRP)
 python agent_mcp_sdk.py     # official "mcp" SDK: search_tools + earthquakes
 ```
 
@@ -115,6 +119,7 @@ Python 3.10+. Tested with Python 3.13, httpx 0.28 and mcp 2.3.0. With mcp 1.x, i
 - Client setup (Cursor, VS Code, Claude Desktop, n8n, curl): see the Spanish section above and `config/`.
 - n8n: import [`n8n/chile-data-mcp-workflow.json`](n8n/chile-data-mcp-workflow.json) (*Import from File*): Chat Trigger + AI Agent + MCP Client Tool pointing to `https://mcp.betterllama.com/mcp` (HTTP Streamable, no auth). Just pick your chat-model credential.
 - Colombia: `colombia_secop_search` searches SECOP II signed contracts (`dataset: contratos`) or published processes (`procesos`) from datos.gov.co (CC BY-SA 4.0), no key. Guide: [Colombia SECOP API](https://betterllama.com/en/guides/colombia-secop-api/).
+- Peru: `peru_bcrp_series` returns official BCRP series (exchange rate, policy rate, inflation, GDP, reserves) by alias or BCRP code, no key; `python bcrp_peru.py --catalog` lists aliases. Guide: [Peru BCRP API](https://betterllama.com/en/guides/peru-bcrp-api/).
 - Free beta: the server applies per-IP rate limits; be gentle with loops.
 
 ---
@@ -229,3 +234,35 @@ Fuente: Portal de Datos Abiertos www.datos.gov.co — SECOP II (Agencia Nacional
 ## Licencia / License
 
 MIT. Datos: propiedad de cada fuente oficial (CMF, Banco Central de Chile, CNE, USGS, ChileCompra, Colombia Compra Eficiente / datos.gov.co, etc.); revisa sus términos.
+
+`python bcrp_peru.py` (2026-11-20, Chile time):
+
+```text
+Tipo de cambio - TC Interbancario (S/ por US$) - Venta [PD04638PD] (diaria, S/ por US$)
+  Latest: 3.4321 on 2026-11-18
+    2026-11-18  3.4321
+    2026-11-17  3.4117
+    2026-11-16  3.4136
+    2026-11-13  3.4013
+    2026-11-12  3.4059
+  https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PD04638PD/html/2026-10-06/2026-11-20/esp
+
+Tasas de interés - Tasa de Referencia de la Política Monetaria [PD12301MD] (diaria, %)
+  Latest: 4.5000 on 2026-11-20
+    2026-11-20  4.5000
+    2026-11-19  4.5000
+    2026-11-18  4.5000
+    2026-11-17  4.5000
+    2026-11-16  4.5000
+  https://estadisticas.bcrp.gob.pe/estadisticas/series/api/PD12301MD/html/2026-10-06/2026-11-20/esp
+
+Note: PD12301MD: se devuelven 5 de 33 datos (los más recientes). Sube maxItems o acota fechas.
+
+Note: PD12301MD: 1 periodo(s) sin dato publicado ("n.d.", p. ej. días sin operación o dato aún no disponible) se omitieron.
+
+Note: PD04638PD: se devuelven 5 de 31 datos (los más recientes). Sube maxItems o acota fechas.
+
+Note: PD04638PD: 3 periodo(s) sin dato publicado ("n.d.", p. ej. días sin operación o dato aún no disponible) se omitieron.
+
+Fuente: Banco Central de Reserva del Perú (BCRP), BCRPData — estadisticas.bcrp.gob.pe. Reproducción permitida citando la fuente (Condiciones de uso de BCRPData). En series de fuente externa (p. ej. IPC elaborado por el INEI) la responsabilidad del dato recae en la entidad que lo provee. Datos sin modificar salvo formato; no constituyen asesoramiento.
+```
