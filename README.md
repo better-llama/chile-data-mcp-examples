@@ -1,8 +1,8 @@
 # chile-data-mcp-examples
 
-Ejemplos ejecutables para usar el servidor MCP gratuito (beta) de [Better Llama](https://betterllama.com) con datos públicos de Chile, Colombia y Perú: indicadores económicos (CMF, Banco Central), precios de bencina (CNE), sismos (USGS), Mercado Público, Chilexpress, Diario Oficial, mercado eléctrico, Bolsa de Santiago, feriados y RUT. Compras públicas de Colombia (SECOP II). Nuevo: series del Banco Central de Reserva del Perú (BCRP: tipo de cambio, tasa de referencia, inflación).
+Ejemplos ejecutables para usar el servidor MCP gratuito (beta) de [Better Llama](https://betterllama.com) con datos públicos de Chile, Colombia, Perú y México: indicadores económicos (CMF, Banco Central), precios de bencina (CNE), sismos (USGS), Mercado Público, Chilexpress, Diario Oficial, mercado eléctrico, Bolsa de Santiago, feriados y RUT. Compras públicas de Colombia (SECOP II). Series del Banco Central de Reserva del Perú (BCRP) y TRM de Colombia. Nuevo: indicadores del Banco de México (Banxico: tipo de cambio FIX, UDIS, TIIE, tasa objetivo, inflación).
 
-Runnable examples for Better Llama's free (beta) MCP server with Chilean, Colombian and Peruvian public data. English below.
+Runnable examples for Better Llama's free (beta) MCP server with Chilean, Colombian, Peruvian and Mexican public data. English below.
 
 | | |
 |---|---|
@@ -10,7 +10,7 @@ Runnable examples for Better Llama's free (beta) MCP server with Chilean, Colomb
 | Transporte / Transport | Streamable HTTP, sin autenticación / anonymous |
 | Header requerido / required | `Accept: application/json, text/event-stream` |
 | Registry id | `com.betterllama/chile-data` |
-| Herramientas / Tools | 13 (`tools/list`) |
+| Herramientas / Tools | 15 (`tools/list`) |
 
 ---
 
@@ -24,11 +24,12 @@ cd chile-data-mcp-examples
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 cd python
-python list_tools.py       # lista las 13 herramientas
+python list_tools.py       # lista las 15 herramientas
 python indicadores.py      # UF, dólar, UTM (CMF) + TPM, IMACEC (Banco Central)
 python bencina.py 93 Ñuñoa # bencina más barata en una comuna (CNE)
 python secop_colombia.py software Antioquia 100000000  # contratos SECOP II (Colombia)
 python bcrp_peru.py        # tipo de cambio y tasa de referencia (BCRP, Perú)
+python banxico_mexico.py   # tipo de cambio FIX, UDIS y tasa objetivo (Banxico, México)
 python agent_mcp_sdk.py    # SDK oficial "mcp": search_tools + sismos
 ```
 
@@ -44,12 +45,13 @@ Requiere Python 3.10+. Probado con Python 3.13, httpx 0.28 y mcp 2.3.0.
 | `python/bencina.py` | `find_chile_fuel_prices` ordenado por precio. |
 | `python/secop_colombia.py` | `colombia_secop_search`: contratos o procesos de compras públicas de Colombia (SECOP II, datos.gov.co). |
 | `python/bcrp_peru.py` | `peru_bcrp_series`: series del BCRP (tipo de cambio, tasa de referencia, inflación, PBI, reservas) por alias o código; `--catalog` lista alias. |
+| `python/banxico_mexico.py` | `mexico_banxico_indicators`: tipo de cambio FIX, UDIS, TIIE, tasa objetivo e inflación del Banco de México; `--date` o `--from/--to` para series. |
 | `python/agent_mcp_sdk.py` | Cliente con el SDK oficial de MCP para Python (streamable HTTP). |
 | `config/` | Configuración para Cursor, VS Code y Claude Desktop. |
 
 ### Herramientas
 
-- Sin clave: `search_tools`, `get_chile_financial_indicators`, `get_chile_central_bank_series`, `find_chile_fuel_prices`, `get_chile_electricity_market`, `search_chile_official_gazette`, `get_chile_earthquakes`, `chile_calendar_and_rut`, `colombia_secop_search`, `peru_bcrp_series` (algunas usan una clave compartida del servidor; no necesitas la tuya).
+- Sin clave: `search_tools`, `get_chile_financial_indicators`, `get_chile_central_bank_series`, `find_chile_fuel_prices`, `get_chile_electricity_market`, `search_chile_official_gazette`, `get_chile_earthquakes`, `chile_calendar_and_rut`, `colombia_secop_search`, `colombia_trm`, `peru_bcrp_series`, `mexico_banxico_indicators` (algunas usan una clave compartida del servidor; no necesitas la tuya).
 - Trae tu clave gratuita: `search_chile_public_tenders` (ticket de [ChileCompra](https://www.chilecompra.cl/api/), argumento `ticket` o header `X-MercadoPublico-Ticket`), `get_santiago_stock_exchange_data` (`apiKey`). `chilexpress_shipping` acepta tus claves para cotizar y seguir envíos.
 
 Las claves se envían por solicitud y el servidor no las guarda. No las subas a git: usa variables de entorno.
@@ -88,6 +90,7 @@ curl -s https://mcp.betterllama.com/mcp \
 - [API sismos Chile](https://betterllama.com/guias/api-sismos-chile/)
 - [API SECOP II Colombia](https://betterllama.com/guias/api-secop-colombia/)
 - [API BCRP Perú](https://betterllama.com/guias/api-bcrp-peru/)
+- [API Banxico México](https://betterllama.com/guias/api-banxico-mexico/)
 
 ---
 
@@ -101,11 +104,12 @@ cd chile-data-mcp-examples
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 cd python
-python list_tools.py        # list the 13 tools
+python list_tools.py        # list the 15 tools
 python indicadores.py       # UF, USD, UTM (CMF) + policy rate, IMACEC (Central Bank)
 python bencina.py 93 Ñuñoa  # cheapest gasoline in a comuna (CNE)
 python secop_colombia.py software Antioquia 100000000  # Colombia SECOP II contracts
 python bcrp_peru.py         # Peru exchange rate + policy rate (BCRP)
+python banxico_mexico.py    # Mexico FIX exchange rate, UDIS, policy rate (Banxico)
 python agent_mcp_sdk.py     # official "mcp" SDK: search_tools + earthquakes
 ```
 
@@ -120,6 +124,7 @@ Python 3.10+. Tested with Python 3.13, httpx 0.28 and mcp 2.3.0. With mcp 1.x, i
 - n8n: import [`n8n/chile-data-mcp-workflow.json`](n8n/chile-data-mcp-workflow.json) (*Import from File*): Chat Trigger + AI Agent + MCP Client Tool pointing to `https://mcp.betterllama.com/mcp` (HTTP Streamable, no auth). Just pick your chat-model credential.
 - Colombia: `colombia_secop_search` searches SECOP II signed contracts (`dataset: contratos`) or published processes (`procesos`) from datos.gov.co (CC BY-SA 4.0), no key. Guide: [Colombia SECOP API](https://betterllama.com/en/guides/colombia-secop-api/).
 - Peru: `peru_bcrp_series` returns official BCRP series (exchange rate, policy rate, inflation, GDP, reserves) by alias or BCRP code, no key; `python bcrp_peru.py --catalog` lists aliases. Guide: [Peru BCRP API](https://betterllama.com/en/guides/peru-bcrp-api/).
+- Mexico: `mexico_banxico_indicators` returns official Bank of Mexico (SIE) indicators: FIX MXN/USD exchange rate, UDIS, TIIE 28/91/182, overnight funding TIIE, policy target rate and annual inflation, no key (the server uses its own token; send `X-Banxico-Token` to use yours). Guide: [Mexico Banxico API](https://betterllama.com/en/guides/mexico-banxico-api/).
 - Free beta: the server applies per-IP rate limits; be gentle with loops.
 
 ---
@@ -231,9 +236,7 @@ Fuente: Portal de Datos Abiertos www.datos.gov.co — SECOP II (Agencia Nacional
 
 ```
 
-## Licencia / License
-
-MIT. Datos: propiedad de cada fuente oficial (CMF, Banco Central de Chile, CNE, USGS, ChileCompra, Colombia Compra Eficiente / datos.gov.co, etc.); revisa sus términos.
+### BCRP (Perú)
 
 `python bcrp_peru.py` (2026-11-20, Chile time):
 
@@ -266,3 +269,28 @@ Note: PD04638PD: 3 periodo(s) sin dato publicado ("n.d.", p. ej. días sin opera
 
 Fuente: Banco Central de Reserva del Perú (BCRP), BCRPData — estadisticas.bcrp.gob.pe. Reproducción permitida citando la fuente (Condiciones de uso de BCRPData). En series de fuente externa (p. ej. IPC elaborado por el INEI) la responsabilidad del dato recae en la entidad que lo provee. Datos sin modificar salvo formato; no constituyen asesoramiento.
 ```
+
+### Banxico (México)
+
+`python banxico_mexico.py` (2026-11-21, hora de Chile / Chile time):
+
+```text
+Tipo de cambio FIX (pesos por dólar E.U.A., fecha de determinación) [SF43718] (diaria, MXN por 1 USD)
+  Latest: 19.0228 on 2026-11-20
+
+Valor de la UDI (Unidad de Inversión) [SP68257] (diaria, MXN por 1 UDI)
+  Latest: 8.92318 on 2026-11-21
+  Published ahead: 8.93248 for 2026-11-25
+
+Tasa objetivo de política monetaria del Banco de México [SF61745] (diaria, % anual)
+  Latest: 6.25 on 2026-11-21
+  Published ahead: 6.25 for 2026-11-22
+
+Note: udis: Banxico ya publicó el valor para 2026-11-25 (posterior a hoy, 2026-11-21 en Ciudad de México); latest es el vigente hoy (2026-11-21) y el adelantado va en "published_ahead".
+
+Note: tasa_objetivo: Banxico ya publicó el valor para 2026-11-22 (posterior a hoy, 2026-11-21 en Ciudad de México); latest es el vigente hoy (2026-11-21) y el adelantado va en "published_ahead".
+```
+
+## Licencia / License
+
+MIT. Datos: propiedad de cada fuente oficial (CMF, Banco Central de Chile, CNE, USGS, ChileCompra, Colombia Compra Eficiente / datos.gov.co, BCRP, Banco de México, etc.); revisa sus términos.
