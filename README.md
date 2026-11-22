@@ -1,6 +1,6 @@
 # chile-data-mcp-examples
 
-Ejemplos ejecutables para usar el servidor MCP gratuito (beta) de [Better Llama](https://betterllama.com) con datos públicos de Chile, Colombia, Perú y México: indicadores económicos (CMF, Banco Central), precios de bencina (CNE), sismos (USGS), Mercado Público, Chilexpress, Diario Oficial, mercado eléctrico, Bolsa de Santiago, feriados y RUT. Compras públicas de Colombia (SECOP II). Series del Banco Central de Reserva del Perú (BCRP) y TRM de Colombia. Nuevo: indicadores del Banco de México (Banxico: tipo de cambio FIX, UDIS, TIIE, tasa objetivo, inflación).
+Ejemplos ejecutables para usar el servidor MCP gratuito (beta) de [Better Llama](https://betterllama.com) con datos públicos de Chile, Colombia, Perú y México: indicadores económicos (CMF, Banco Central), precios de bencina (CNE), sismos (USGS), Mercado Público, Chilexpress, Diario Oficial, mercado eléctrico, Bolsa de Santiago, feriados y RUT. Compras públicas de Colombia (SECOP II). Series del Banco Central de Reserva del Perú (BCRP) e indicadores del Banco de México (Banxico: tipo de cambio FIX, UDIS, TIIE, tasa objetivo, inflación). Nuevo: TRM de Colombia (tasa de cambio oficial COP/USD).
 
 Runnable examples for Better Llama's free (beta) MCP server with Chilean, Colombian, Peruvian and Mexican public data. English below.
 
@@ -30,6 +30,7 @@ python bencina.py 93 Ñuñoa # bencina más barata en una comuna (CNE)
 python secop_colombia.py software Antioquia 100000000  # contratos SECOP II (Colombia)
 python bcrp_peru.py        # tipo de cambio y tasa de referencia (BCRP, Perú)
 python banxico_mexico.py   # tipo de cambio FIX, UDIS y tasa objetivo (Banxico, México)
+python trm_colombia.py     # TRM vigente, dólar oficial COP/USD (Colombia)
 python agent_mcp_sdk.py    # SDK oficial "mcp": search_tools + sismos
 ```
 
@@ -46,6 +47,7 @@ Requiere Python 3.10+. Probado con Python 3.13, httpx 0.28 y mcp 2.3.0.
 | `python/secop_colombia.py` | `colombia_secop_search`: contratos o procesos de compras públicas de Colombia (SECOP II, datos.gov.co). |
 | `python/bcrp_peru.py` | `peru_bcrp_series`: series del BCRP (tipo de cambio, tasa de referencia, inflación, PBI, reservas) por alias o código; `--catalog` lista alias. |
 | `python/banxico_mexico.py` | `mexico_banxico_indicators`: tipo de cambio FIX, UDIS, TIIE, tasa objetivo e inflación del Banco de México; `--date` o `--from/--to` para series. |
+| `python/trm_colombia.py` | `colombia_trm`: TRM de Colombia (pesos por dólar, Superintendencia Financiera vía datos.gov.co); sin argumentos la vigente, `--date` para un día o `--from/--to` para un rango. |
 | `python/agent_mcp_sdk.py` | Cliente con el SDK oficial de MCP para Python (streamable HTTP). |
 | `config/` | Configuración para Cursor, VS Code y Claude Desktop. |
 
@@ -91,6 +93,7 @@ curl -s https://mcp.betterllama.com/mcp \
 - [API SECOP II Colombia](https://betterllama.com/guias/api-secop-colombia/)
 - [API BCRP Perú](https://betterllama.com/guias/api-bcrp-peru/)
 - [API Banxico México](https://betterllama.com/guias/api-banxico-mexico/)
+- [API TRM Colombia](https://betterllama.com/guias/api-trm-colombia/)
 
 ---
 
@@ -110,6 +113,7 @@ python bencina.py 93 Ñuñoa  # cheapest gasoline in a comuna (CNE)
 python secop_colombia.py software Antioquia 100000000  # Colombia SECOP II contracts
 python bcrp_peru.py         # Peru exchange rate + policy rate (BCRP)
 python banxico_mexico.py    # Mexico FIX exchange rate, UDIS, policy rate (Banxico)
+python trm_colombia.py      # Colombia official COP/USD exchange rate (TRM)
 python agent_mcp_sdk.py     # official "mcp" SDK: search_tools + earthquakes
 ```
 
@@ -125,6 +129,7 @@ Python 3.10+. Tested with Python 3.13, httpx 0.28 and mcp 2.3.0. With mcp 1.x, i
 - Colombia: `colombia_secop_search` searches SECOP II signed contracts (`dataset: contratos`) or published processes (`procesos`) from datos.gov.co (CC BY-SA 4.0), no key. Guide: [Colombia SECOP API](https://betterllama.com/en/guides/colombia-secop-api/).
 - Peru: `peru_bcrp_series` returns official BCRP series (exchange rate, policy rate, inflation, GDP, reserves) by alias or BCRP code, no key; `python bcrp_peru.py --catalog` lists aliases. Guide: [Peru BCRP API](https://betterllama.com/en/guides/peru-bcrp-api/).
 - Mexico: `mexico_banxico_indicators` returns official Bank of Mexico (SIE) indicators: FIX MXN/USD exchange rate, UDIS, TIIE 28/91/182, overnight funding TIIE, policy target rate and annual inflation, no key (the server uses its own token; send `X-Banxico-Token` to use yours). Guide: [Mexico Banxico API](https://betterllama.com/en/guides/mexico-banxico-api/).
+- Colombia TRM: `colombia_trm` returns Colombia's official COP/USD exchange rate (TRM) certified by the Superintendencia Financiera, via datos.gov.co (CC BY-SA 4.0), no key. No arguments: latest TRM; `date` for the TRM in force on a day (weekend/holiday rates are certified the previous business day, so each row has `date_from`/`date_to`); `fromDate`/`toDate` for a range (`python trm_colombia.py --from 2026-11-10 --to 2026-11-20`). Guide: [Colombia TRM API](https://betterllama.com/en/guides/colombia-trm-api/).
 - Free beta: the server applies per-IP rate limits; be gentle with loops.
 
 ---
@@ -291,6 +296,33 @@ Note: udis: Banxico ya publicó el valor para 2026-11-25 (posterior a hoy, 2026-
 Note: tasa_objetivo: Banxico ya publicó el valor para 2026-11-22 (posterior a hoy, 2026-11-21 en Ciudad de México); latest es el vigente hoy (2026-11-21) y el adelantado va en "published_ahead".
 ```
 
+### TRM (Colombia)
+
+`python trm_colombia.py` (2026-11-22, hora de Chile / Chile time):
+
+```text
+TRM Colombia (COP por 1 USD)
+  Latest: 3,461.92 in force 2026-11-21 .. 2026-11-23
+
+Source updated at: 2026-11-20T23:05:56.000Z
+
+Fuente: Superintendencia Financiera de Colombia vía datos.gov.co (Portal de Datos Abiertos www.datos.gov.co, conjunto "Tasa de Cambio Representativa del Mercado - TRM", 32sa-8pi3). Licencia CC BY-SA 4.0. La fecha de última actualización del conjunto viene en sourceUpdatedAt.
+```
+
+`python trm_colombia.py --from 2026-11-10 --to 2026-11-20`:
+
+```text
+TRM Colombia (COP por 1 USD)
+  Latest: 3,415.10 in force 2026-11-20 .. 2026-11-20
+    2026-11-20 .. 2026-11-20  3,415.10
+    2026-11-19 .. 2026-11-19  3,326.96
+    2026-11-18 .. 2026-11-18  3,309.55
+    2026-11-14 .. 2026-11-17  3,316.70
+    2026-11-13 .. 2026-11-13  3,301.91
+    2026-11-11 .. 2026-11-12  3,297.07
+    2026-11-10 .. 2026-11-10  3,269.88
+```
+
 ## Licencia / License
 
-MIT. Datos: propiedad de cada fuente oficial (CMF, Banco Central de Chile, CNE, USGS, ChileCompra, Colombia Compra Eficiente / datos.gov.co, BCRP, Banco de México, etc.); revisa sus términos.
+MIT. Datos: propiedad de cada fuente oficial (CMF, Banco Central de Chile, CNE, USGS, ChileCompra, Colombia Compra Eficiente / datos.gov.co, BCRP, Banco de México, Superintendencia Financiera de Colombia, etc.); revisa sus términos.
