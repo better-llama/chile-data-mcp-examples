@@ -96,7 +96,7 @@ curl -s https://mcp.betterllama.com/mcp \
 - [API BCRP Perú](https://betterllama.com/guias/api-bcrp-peru/)
 - [API Banxico México](https://betterllama.com/guias/api-banxico-mexico/)
 - [API TRM Colombia](https://betterllama.com/guias/api-trm-colombia/)
-- [CMF Chile: UF, dólar, euro, UTM y TMC](https://betterllama.com/herramientas/cmf-chile-indicadores/) (ficha de la herramienta)
+- [API CMF Chile: UF, dólar, euro, UTM y TMC](https://betterllama.com/guias/api-cmf-chile/)
 
 ---
 
@@ -134,7 +134,7 @@ Python 3.10+. Tested with Python 3.13, httpx 0.28 and mcp 2.3.0. With mcp 1.x, i
 - Peru: `peru_bcrp_series` returns official BCRP series (exchange rate, policy rate, inflation, GDP, reserves) by alias or BCRP code, no key; `python bcrp_peru.py --catalog` lists aliases. Guide: [Peru BCRP API](https://betterllama.com/en/guides/peru-bcrp-api/).
 - Mexico: `mexico_banxico_indicators` returns official Bank of Mexico (SIE) indicators: FIX MXN/USD exchange rate, UDIS, TIIE 28/91/182, overnight funding TIIE, policy target rate and annual inflation, no key (the server uses its own token; send `X-Banxico-Token` to use yours). Guide: [Mexico Banxico API](https://betterllama.com/en/guides/mexico-banxico-api/).
 - Colombia TRM: `colombia_trm` returns Colombia's official COP/USD exchange rate (TRM) certified by the Superintendencia Financiera, via datos.gov.co (CC BY-SA 4.0), no key. No arguments: latest TRM; `date` for the TRM in force on a day (weekend/holiday rates are certified the previous business day, so each row has `date_from`/`date_to`); `fromDate`/`toDate` for a range (`python trm_colombia.py --from 2026-11-10 --to 2026-11-20`). Guide: [Colombia TRM API](https://betterllama.com/en/guides/colombia-trm-api/).
-- Chile CMF: `get_chile_financial_indicators` returns official indicators from Chile's Comisión para el Mercado Financiero (CMF): UF, observed USD (dólar observado), EUR, UTM, CPI (IPC), maximum conventional interest rate (TMC) and TIP, no key (the server uses its own CMF key). `python cmf_chile.py` prints the latest UF, USD, EUR and UTM; `--indicator dolar --date 2026-11-20` for one day, `--indicator uf --year 2026 --month 11` for a series, `--tmc` for the TMC. USD and EUR are only published on banking days: on weekends you get the last published value plus a note. Tool page: [Chile CMF indicators](https://betterllama.com/en/tools/cmf-chile-indicadores/).
+- Chile CMF: `get_chile_financial_indicators` returns official indicators from Chile's Comisión para el Mercado Financiero (CMF): UF, observed USD (dólar observado), EUR, UTM, CPI (IPC), maximum conventional interest rate (TMC) and TIP, no key (the server uses its own CMF key). `python cmf_chile.py` prints the latest UF, USD, EUR and UTM; `--indicator dolar --date 2026-11-20` for one day, `--indicator uf --year 2026 --month 11` for a series, `--tmc` for the TMC. USD and EUR are only published on banking days: on weekends you get the last published value plus a note, and when CMF has already published the next banking day's rate in advance, the note includes it. Guide: [Chile CMF API](https://betterllama.com/en/guides/chile-cmf-api/).
 - Free beta: the server applies per-IP rate limits; be gentle with loops.
 
 ---
