@@ -1,6 +1,6 @@
 # chile-data-mcp-examples
 
-Ejemplos ejecutables para usar el servidor MCP gratuito (beta) de [Better Llama](https://betterllama.com) con datos públicos de Chile, Colombia, Perú y México: indicadores económicos (CMF, Banco Central), precios de bencina (CNE), sismos (USGS), Mercado Público, Chilexpress, Diario Oficial, mercado eléctrico, Bolsa de Santiago, feriados y RUT. Compras públicas de Colombia (SECOP II). Series del Banco Central de Reserva del Perú (BCRP) e indicadores del Banco de México (Banxico: tipo de cambio FIX, UDIS, TIIE, tasa objetivo, inflación). Nuevo: TRM de Colombia (tasa de cambio oficial COP/USD).
+Ejemplos ejecutables para usar el servidor MCP gratuito (beta) de [Better Llama](https://betterllama.com) con datos públicos de Chile, Colombia, Perú y México: indicadores económicos (CMF, Banco Central), precios de bencina (CNE), sismos (USGS), Mercado Público, Chilexpress, Diario Oficial, mercado eléctrico, Bolsa de Santiago, feriados y RUT. Compras públicas de Colombia (SECOP II). Series del Banco Central de Reserva del Perú (BCRP) e indicadores del Banco de México (Banxico: tipo de cambio FIX, UDIS, TIIE, tasa objetivo, inflación). TRM de Colombia (tasa de cambio oficial COP/USD). Nuevo: ejemplo CMF Chile (UF, dólar observado, euro, UTM, IPC y tasa máxima convencional).
 
 Runnable examples for Better Llama's free (beta) MCP server with Chilean, Colombian, Peruvian and Mexican public data. English below.
 
@@ -31,6 +31,7 @@ python secop_colombia.py software Antioquia 100000000  # contratos SECOP II (Col
 python bcrp_peru.py        # tipo de cambio y tasa de referencia (BCRP, Perú)
 python banxico_mexico.py   # tipo de cambio FIX, UDIS y tasa objetivo (Banxico, México)
 python trm_colombia.py     # TRM vigente, dólar oficial COP/USD (Colombia)
+python cmf_chile.py        # UF, dólar observado, euro y UTM vigentes (CMF Chile)
 python agent_mcp_sdk.py    # SDK oficial "mcp": search_tools + sismos
 ```
 
@@ -48,6 +49,7 @@ Requiere Python 3.10+. Probado con Python 3.13, httpx 0.28 y mcp 2.3.0.
 | `python/bcrp_peru.py` | `peru_bcrp_series`: series del BCRP (tipo de cambio, tasa de referencia, inflación, PBI, reservas) por alias o código; `--catalog` lista alias. |
 | `python/banxico_mexico.py` | `mexico_banxico_indicators`: tipo de cambio FIX, UDIS, TIIE, tasa objetivo e inflación del Banco de México; `--date` o `--from/--to` para series. |
 | `python/trm_colombia.py` | `colombia_trm`: TRM de Colombia (pesos por dólar, Superintendencia Financiera vía datos.gov.co); sin argumentos la vigente, `--date` para un día o `--from/--to` para un rango. |
+| `python/cmf_chile.py` | `get_chile_financial_indicators`: indicadores oficiales de la CMF Chile; sin argumentos UF, dólar observado, euro y UTM vigentes; `--indicator` (uf, dolar, euro, utm, ipc, tmc, tip), `--date` para un día, `--year`/`--month` para una serie y `--tmc` para la tasa máxima convencional. |
 | `python/agent_mcp_sdk.py` | Cliente con el SDK oficial de MCP para Python (streamable HTTP). |
 | `config/` | Configuración para Cursor, VS Code y Claude Desktop. |
 
@@ -94,6 +96,7 @@ curl -s https://mcp.betterllama.com/mcp \
 - [API BCRP Perú](https://betterllama.com/guias/api-bcrp-peru/)
 - [API Banxico México](https://betterllama.com/guias/api-banxico-mexico/)
 - [API TRM Colombia](https://betterllama.com/guias/api-trm-colombia/)
+- [CMF Chile: UF, dólar, euro, UTM y TMC](https://betterllama.com/herramientas/cmf-chile-indicadores/) (ficha de la herramienta)
 
 ---
 
@@ -114,6 +117,7 @@ python secop_colombia.py software Antioquia 100000000  # Colombia SECOP II contr
 python bcrp_peru.py         # Peru exchange rate + policy rate (BCRP)
 python banxico_mexico.py    # Mexico FIX exchange rate, UDIS, policy rate (Banxico)
 python trm_colombia.py      # Colombia official COP/USD exchange rate (TRM)
+python cmf_chile.py         # Chile UF, observed USD, EUR and UTM (CMF)
 python agent_mcp_sdk.py     # official "mcp" SDK: search_tools + earthquakes
 ```
 
@@ -130,6 +134,7 @@ Python 3.10+. Tested with Python 3.13, httpx 0.28 and mcp 2.3.0. With mcp 1.x, i
 - Peru: `peru_bcrp_series` returns official BCRP series (exchange rate, policy rate, inflation, GDP, reserves) by alias or BCRP code, no key; `python bcrp_peru.py --catalog` lists aliases. Guide: [Peru BCRP API](https://betterllama.com/en/guides/peru-bcrp-api/).
 - Mexico: `mexico_banxico_indicators` returns official Bank of Mexico (SIE) indicators: FIX MXN/USD exchange rate, UDIS, TIIE 28/91/182, overnight funding TIIE, policy target rate and annual inflation, no key (the server uses its own token; send `X-Banxico-Token` to use yours). Guide: [Mexico Banxico API](https://betterllama.com/en/guides/mexico-banxico-api/).
 - Colombia TRM: `colombia_trm` returns Colombia's official COP/USD exchange rate (TRM) certified by the Superintendencia Financiera, via datos.gov.co (CC BY-SA 4.0), no key. No arguments: latest TRM; `date` for the TRM in force on a day (weekend/holiday rates are certified the previous business day, so each row has `date_from`/`date_to`); `fromDate`/`toDate` for a range (`python trm_colombia.py --from 2026-11-10 --to 2026-11-20`). Guide: [Colombia TRM API](https://betterllama.com/en/guides/colombia-trm-api/).
+- Chile CMF: `get_chile_financial_indicators` returns official indicators from Chile's Comisión para el Mercado Financiero (CMF): UF, observed USD (dólar observado), EUR, UTM, CPI (IPC), maximum conventional interest rate (TMC) and TIP, no key (the server uses its own CMF key). `python cmf_chile.py` prints the latest UF, USD, EUR and UTM; `--indicator dolar --date 2026-11-20` for one day, `--indicator uf --year 2026 --month 11` for a series, `--tmc` for the TMC. USD and EUR are only published on banking days: on weekends you get the last published value plus a note. Tool page: [Chile CMF indicators](https://betterllama.com/en/tools/cmf-chile-indicadores/).
 - Free beta: the server applies per-IP rate limits; be gentle with loops.
 
 ---
@@ -322,6 +327,35 @@ TRM Colombia (COP por 1 USD)
     2026-11-11 .. 2026-11-12  3,297.07
     2026-11-10 .. 2026-11-10  3,269.88
 ```
+
+### CMF (Chile)
+
+`python cmf_chile.py` (2026-11-22, domingo, hora de Chile / Sunday, Chile time):
+
+```text
+Unidad de Fomento (UF): 41,384.81 CLP (2026-11-22)
+Dólar observado (USD): 1,008.79 CLP (2026-11-20)
+  Note: Sin valor publicado para 2026-11-22 (la CMF publica el dólar observado solo en días hábiles bancarios; no hay valor en fines de semana ni feriados). Se entrega el último valor publicado, correspondiente al 2026-11-20. / No value published for 2026-11-22; returning the most recent published value, dated 2026-11-20.
+Euro: 1,107.59 CLP (2026-11-20)
+  Note: Sin valor publicado para 2026-11-22 (la CMF publica el euro solo en días hábiles bancarios; no hay valor en fines de semana ni feriados). Se entrega el último valor publicado, correspondiente al 2026-11-20. / No value published for 2026-11-22; returning the most recent published value, dated 2026-11-20.
+Unidad Tributaria Mensual (UTM): 72,440.00 CLP (2026-11-01)
+
+Fuente: Comisión para el Mercado Financiero (CMF Chile), API CMF Bancos — https://www.cmfchile.cl
+```
+
+`python cmf_chile.py --tmc` (extracto / excerpt):
+
+```text
+Tasa Máxima Convencional (TMC) (% anual, vigente desde 2026-11-14)
+   46.89%  [26] Operaciones no reajustables en moneda nacional de menos de 90 días - Inferiores o iguales al equivalente de 5.000 unidades de fomento
+    8.46%  [25] Operaciones no reajustables en moneda nacional de menos de 90 días - Superiores al equivalente de 5.000 unidades de fomento
+   41.12%  [45] Operaciones no reajustables en moneda nacional 90 días o más - Inferiores o iguales al equivalente de 50 unidades de fomento
+   ...  (12 filas / rows)
+
+Fuente: Comisión para el Mercado Financiero (CMF Chile), API CMF Bancos — https://www.cmfchile.cl
+```
+
+Fuente: Comisión para el Mercado Financiero (CMF Chile), API CMF Bancos ([api.cmfchile.cl](https://api.cmfchile.cl/)). / Source: CMF Chile.
 
 ## Licencia / License
 
