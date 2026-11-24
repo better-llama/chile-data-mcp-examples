@@ -33,6 +33,7 @@ python banxico_mexico.py   # tipo de cambio FIX, UDIS y tasa objetivo (Banxico, 
 python trm_colombia.py     # TRM vigente, dólar oficial COP/USD (Colombia)
 python cmf_chile.py        # UF, dólar observado, euro y UTM vigentes (CMF Chile)
 python calendario_rut.py   # feriados que quedan del año; también plazo, habiles, rut, dv, comunas
+python sismos.py           # sismos de la última semana; también hoy, fuertes, cerca, tsunami, percibidos
 python agent_mcp_sdk.py    # SDK oficial "mcp": search_tools + sismos
 ```
 
@@ -52,6 +53,7 @@ Requiere Python 3.10+. Probado con Python 3.13, httpx 0.28 y mcp 2.3.0.
 | `python/trm_colombia.py` | `colombia_trm`: TRM de Colombia (pesos por dólar, Superintendencia Financiera vía datos.gov.co); sin argumentos la vigente, `--date` para un día o `--from/--to` para un rango. |
 | `python/cmf_chile.py` | `get_chile_financial_indicators`: indicadores oficiales de la CMF Chile; sin argumentos UF, dólar observado, euro y UTM vigentes; `--indicator` (uf, dolar, euro, utm, ipc, tmc, tip), `--date` para un día, `--year`/`--month` para una serie y `--tmc` para la tasa máxima convencional. |
 | `python/calendario_rut.py` | `chile_calendar_and_rut`: feriados de Chile (nacionales, regionales y comunales, 2022–2035), `es-feriado`, `plazo` (sumar N días hábiles), `habiles` (contar días hábiles entre dos fechas), `rut`/`dv` (validar RUT o calcular el dígito verificador) y `comunas` (códigos CUT por región). Opciones `--region`, `--comuna` y `--sabado`. Cálculo local, sin clave ni datos personales. |
+| `python/sismos.py` | `get_chile_earthquakes`: sismos de Chile (USGS, dominio público) con hora de Chile; `hoy`, `fuertes` (M>=5 del último año por magnitud), `cerca <lat> <lon> <km>`, `tsunami` (últimos 10 años) y `percibidos`; opciones `--min`, `--max` e `--islas` (incluye Isla de Pascua y Juan Fernández). Sin clave. |
 | `python/agent_mcp_sdk.py` | Cliente con el SDK oficial de MCP para Python (streamable HTTP). |
 | `config/` | Configuración para Cursor, VS Code y Claude Desktop. |
 
@@ -125,6 +127,7 @@ python banxico_mexico.py    # Mexico FIX exchange rate, UDIS, policy rate (Banxi
 python trm_colombia.py      # Colombia official COP/USD exchange rate (TRM)
 python cmf_chile.py         # Chile UF, observed USD, EUR and UTM (CMF)
 python calendario_rut.py    # Chile holidays left this year; also plazo, habiles, rut, dv, comunas
+python sismos.py            # Chile earthquakes, last 7 days; also hoy, fuertes, cerca, tsunami, percibidos
 python agent_mcp_sdk.py     # official "mcp" SDK: search_tools + earthquakes
 ```
 
@@ -143,6 +146,7 @@ Python 3.10+. Tested with Python 3.13, httpx 0.28 and mcp 2.3.0. With mcp 1.x, i
 - Colombia TRM: `colombia_trm` returns Colombia's official COP/USD exchange rate (TRM) certified by the Superintendencia Financiera, via datos.gov.co (CC BY-SA 4.0), no key. No arguments: latest TRM; `date` for the TRM in force on a day (weekend/holiday rates are certified the previous business day, so each row has `date_from`/`date_to`); `fromDate`/`toDate` for a range (`python trm_colombia.py --from 2026-11-10 --to 2026-11-20`). Guide: [Colombia TRM API](https://betterllama.com/en/guides/colombia-trm-api/).
 - Chile CMF: `get_chile_financial_indicators` returns official indicators from Chile's Comisión para el Mercado Financiero (CMF): UF, observed USD (dólar observado), EUR, UTM, CPI (IPC), maximum conventional interest rate (TMC) and TIP, no key (the server uses its own CMF key). `python cmf_chile.py` prints the latest UF, USD, EUR and UTM; `--indicator dolar --date 2026-11-20` for one day, `--indicator uf --year 2026 --month 11` for a series, `--tmc` for the TMC. USD and EUR are only published on banking days: on weekends you get the last published value plus a note, and when CMF has already published the next banking day's rate in advance, the note includes it. Guide: [Chile CMF API](https://betterllama.com/en/guides/chile-cmf-api/).
 - Chile holidays, business days, RUT and communes: `chile_calendar_and_rut` is computed by the server from Chilean holiday laws and SUBDERE territorial codes (no key, no external calls, no personal data). `python calendario_rut.py` lists the holidays left this year; `feriados 2027` (national + regional, marked `[regional]`), `es-feriado 2026-12-08`, `plazo 2026-12-15 10` (add 10 business days, counted from the next day), `habiles 2026-12-01 2026-12-31`, `rut 12.345.678-5`, `dv 12345678` (compute the check digit), `comunas RM` (CUT codes). `--region`/`--comuna` apply regional or communal holidays (e.g. 20 August in Chillán); `--sabado` counts Saturdays as business days. Guides: [holidays](https://betterllama.com/en/guides/chile-holidays-api/), [business days](https://betterllama.com/en/guides/chile-business-days-api/), [RUT validation](https://betterllama.com/en/guides/chile-rut-validation-api/), [communes](https://betterllama.com/en/guides/chile-communes-api/). All guides: [Chile open data APIs](https://betterllama.com/en/guides/chile-open-data-apis/).
+- Chile earthquakes: `get_chile_earthquakes` returns USGS (ComCat, public domain) events for Chile with UTC and Chile time, magnitude, depth, PAGER alert level, tsunami flag and felt reports, no key. `python sismos.py` lists the last 7 days (M>=2.5); `hoy`, `fuertes` (M>=5 in the last year, by magnitude), `cerca -33.45 -70.66 150` (radius search), `tsunami` (last 10 years), `percibidos` (felt reports); `--min`, `--max`, `--islas`. Guide: [Chile earthquakes API](https://betterllama.com/en/guides/chile-earthquakes-api/).
 - Free beta: the server applies per-IP rate limits; be gentle with loops.
 
 ---
@@ -406,6 +410,45 @@ Ejecutado el 2026-11-24, hora de Chile / Run on 2026-11-24, Chile time.
 ```
 
 Atribución / attribution: _Calculado por Better Llama a partir de leyes de feriados y la División Político-Administrativa publicadas por el Estado de Chile._
+
+### Sismos (Chile) / Earthquakes
+
+Ejecutado el 2026-11-24, hora de Chile / Run on 2026-11-24, Chile time.
+
+`python sismos.py hoy`:
+
+```
+2 sismos (hoy):
+  2026-11-24 17:27 (Chile)  M4.6     51 km  49 km SW of Ovalle, Chile
+  2026-11-24 10:22 (Chile)  M4.8     33 km  71 km W of Vallenar, Chile
+
+Fuente: U.S. Geological Survey (USGS), Earthquake Hazards Program — dominio público.
+```
+
+`python sismos.py fuertes --max 5` (M>=5, últimos 365 días / last 365 days):
+
+```
+5 sismos (fuertes):
+  2026-05-25 17:52 (Chile)  M6.9    109 km  34 km ENE of Calama, Chile  [PAGER green, 85 reportes]
+  2026-03-13 10:39 (Chile)  M6.2     24 km  71 km W of Vallenar, Chile  [PAGER green, 34 reportes]
+  2026-02-12 10:34 (Chile)  M6.1     46 km  28 km SW of Ovalle, Chile  [PAGER green, 126 reportes]
+  2026-05-31 17:34 (Chile)  M6       25 km  33 km NW of Valparaíso, Chile  [PAGER green, 159 reportes]
+  2026-02-08 13:23 (Chile)  M5.7    114 km  79 km ENE of La Tirana, Chile  [PAGER green, 25 reportes]
+stopReason: maxItems (raise --max)
+
+Fuente: U.S. Geological Survey (USGS), Earthquake Hazards Program — dominio público.
+```
+
+`python sismos.py cerca -33.45 -70.66 150 --max 5` (150 km de Santiago, últimos 30 días / last 30 days):
+
+```
+3 sismos (cerca):
+  2026-10-28 09:52 (Chile)  M4.2     52 km  31 km SSW of Melipilla, Chile
+  2026-10-26 17:52 (Chile)  M4.6     48 km  18 km NNW of La Ligua, Chile  [2 reportes]
+  2026-10-25 21:55 (Chile)  M4.2     22 km  40 km W of Valparaíso, Chile
+
+Fuente: U.S. Geological Survey (USGS), Earthquake Hazards Program — dominio público.
+```
 
 ## Licencia / License
 
