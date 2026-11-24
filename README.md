@@ -1,6 +1,6 @@
 # chile-data-mcp-examples
 
-Ejemplos ejecutables para usar el servidor MCP gratuito (beta) de [Better Llama](https://betterllama.com) con datos públicos de Chile, Colombia, Perú y México: indicadores económicos (CMF, Banco Central), precios de bencina (CNE), sismos (USGS), Mercado Público, Chilexpress, Diario Oficial, mercado eléctrico, Bolsa de Santiago, feriados y RUT. Compras públicas de Colombia (SECOP II). Series del Banco Central de Reserva del Perú (BCRP) e indicadores del Banco de México (Banxico: tipo de cambio FIX, UDIS, TIIE, tasa objetivo, inflación). TRM de Colombia (tasa de cambio oficial COP/USD). Nuevo: ejemplo CMF Chile (UF, dólar observado, euro, UTM, IPC y tasa máxima convencional).
+Ejemplos ejecutables para usar el servidor MCP gratuito (beta) de [Better Llama](https://betterllama.com) con datos públicos de Chile, Colombia, Perú y México: indicadores económicos (CMF, Banco Central), precios de bencina (CNE), sismos (USGS), Mercado Público, Chilexpress, Diario Oficial, mercado eléctrico, Bolsa de Santiago, feriados y RUT. Compras públicas de Colombia (SECOP II). Series del Banco Central de Reserva del Perú (BCRP) e indicadores del Banco de México (Banxico: tipo de cambio FIX, UDIS, TIIE, tasa objetivo, inflación). TRM de Colombia (tasa de cambio oficial COP/USD). Ejemplo CMF Chile (UF, dólar observado, euro, UTM, IPC y tasa máxima convencional). Nuevo: feriados de Chile, días hábiles y plazos, validación de RUT y comunas con código CUT (`calendario_rut.py`, sin clave).
 
 Runnable examples for Better Llama's free (beta) MCP server with Chilean, Colombian, Peruvian and Mexican public data. English below.
 
@@ -32,6 +32,7 @@ python bcrp_peru.py        # tipo de cambio y tasa de referencia (BCRP, Perú)
 python banxico_mexico.py   # tipo de cambio FIX, UDIS y tasa objetivo (Banxico, México)
 python trm_colombia.py     # TRM vigente, dólar oficial COP/USD (Colombia)
 python cmf_chile.py        # UF, dólar observado, euro y UTM vigentes (CMF Chile)
+python calendario_rut.py   # feriados que quedan del año; también plazo, habiles, rut, dv, comunas
 python agent_mcp_sdk.py    # SDK oficial "mcp": search_tools + sismos
 ```
 
@@ -50,6 +51,7 @@ Requiere Python 3.10+. Probado con Python 3.13, httpx 0.28 y mcp 2.3.0.
 | `python/banxico_mexico.py` | `mexico_banxico_indicators`: tipo de cambio FIX, UDIS, TIIE, tasa objetivo e inflación del Banco de México; `--date` o `--from/--to` para series. |
 | `python/trm_colombia.py` | `colombia_trm`: TRM de Colombia (pesos por dólar, Superintendencia Financiera vía datos.gov.co); sin argumentos la vigente, `--date` para un día o `--from/--to` para un rango. |
 | `python/cmf_chile.py` | `get_chile_financial_indicators`: indicadores oficiales de la CMF Chile; sin argumentos UF, dólar observado, euro y UTM vigentes; `--indicator` (uf, dolar, euro, utm, ipc, tmc, tip), `--date` para un día, `--year`/`--month` para una serie y `--tmc` para la tasa máxima convencional. |
+| `python/calendario_rut.py` | `chile_calendar_and_rut`: feriados de Chile (nacionales, regionales y comunales, 2022–2035), `es-feriado`, `plazo` (sumar N días hábiles), `habiles` (contar días hábiles entre dos fechas), `rut`/`dv` (validar RUT o calcular el dígito verificador) y `comunas` (códigos CUT por región). Opciones `--region`, `--comuna` y `--sabado`. Cálculo local, sin clave ni datos personales. |
 | `python/agent_mcp_sdk.py` | Cliente con el SDK oficial de MCP para Python (streamable HTTP). |
 | `config/` | Configuración para Cursor, VS Code y Claude Desktop. |
 
@@ -97,6 +99,10 @@ curl -s https://mcp.betterllama.com/mcp \
 - [API Banxico México](https://betterllama.com/guias/api-banxico-mexico/)
 - [API TRM Colombia](https://betterllama.com/guias/api-trm-colombia/)
 - [API CMF Chile: UF, dólar, euro, UTM y TMC](https://betterllama.com/guias/api-cmf-chile/)
+- [API UF Chile](https://betterllama.com/guias/api-uf-chile/) · [API dólar observado](https://betterllama.com/guias/api-dolar-observado-chile/) · [API Banco Central de Chile](https://betterllama.com/guias/api-banco-central-chile/)
+- [API feriados Chile](https://betterllama.com/guias/api-feriados-chile/) · [API días hábiles](https://betterllama.com/guias/api-dias-habiles-chile/) · [API para validar RUT](https://betterllama.com/guias/api-validar-rut-chile/) · [API comunas de Chile](https://betterllama.com/guias/api-comunas-chile/)
+- [API Diario Oficial](https://betterllama.com/guias/api-diario-oficial-chile/) · [API Coordinador Eléctrico](https://betterllama.com/guias/api-coordinador-electrico-chile/)
+- [Todas las APIs de datos abiertos de Chile](https://betterllama.com/guias/apis-datos-abiertos-chile/)
 
 ---
 
@@ -118,6 +124,7 @@ python bcrp_peru.py         # Peru exchange rate + policy rate (BCRP)
 python banxico_mexico.py    # Mexico FIX exchange rate, UDIS, policy rate (Banxico)
 python trm_colombia.py      # Colombia official COP/USD exchange rate (TRM)
 python cmf_chile.py         # Chile UF, observed USD, EUR and UTM (CMF)
+python calendario_rut.py    # Chile holidays left this year; also plazo, habiles, rut, dv, comunas
 python agent_mcp_sdk.py     # official "mcp" SDK: search_tools + earthquakes
 ```
 
@@ -135,6 +142,7 @@ Python 3.10+. Tested with Python 3.13, httpx 0.28 and mcp 2.3.0. With mcp 1.x, i
 - Mexico: `mexico_banxico_indicators` returns official Bank of Mexico (SIE) indicators: FIX MXN/USD exchange rate, UDIS, TIIE 28/91/182, overnight funding TIIE, policy target rate and annual inflation, no key (the server uses its own token; send `X-Banxico-Token` to use yours). Guide: [Mexico Banxico API](https://betterllama.com/en/guides/mexico-banxico-api/).
 - Colombia TRM: `colombia_trm` returns Colombia's official COP/USD exchange rate (TRM) certified by the Superintendencia Financiera, via datos.gov.co (CC BY-SA 4.0), no key. No arguments: latest TRM; `date` for the TRM in force on a day (weekend/holiday rates are certified the previous business day, so each row has `date_from`/`date_to`); `fromDate`/`toDate` for a range (`python trm_colombia.py --from 2026-11-10 --to 2026-11-20`). Guide: [Colombia TRM API](https://betterllama.com/en/guides/colombia-trm-api/).
 - Chile CMF: `get_chile_financial_indicators` returns official indicators from Chile's Comisión para el Mercado Financiero (CMF): UF, observed USD (dólar observado), EUR, UTM, CPI (IPC), maximum conventional interest rate (TMC) and TIP, no key (the server uses its own CMF key). `python cmf_chile.py` prints the latest UF, USD, EUR and UTM; `--indicator dolar --date 2026-11-20` for one day, `--indicator uf --year 2026 --month 11` for a series, `--tmc` for the TMC. USD and EUR are only published on banking days: on weekends you get the last published value plus a note, and when CMF has already published the next banking day's rate in advance, the note includes it. Guide: [Chile CMF API](https://betterllama.com/en/guides/chile-cmf-api/).
+- Chile holidays, business days, RUT and communes: `chile_calendar_and_rut` is computed by the server from Chilean holiday laws and SUBDERE territorial codes (no key, no external calls, no personal data). `python calendario_rut.py` lists the holidays left this year; `feriados 2027` (national + regional, marked `[regional]`), `es-feriado 2026-12-08`, `plazo 2026-12-15 10` (add 10 business days, counted from the next day), `habiles 2026-12-01 2026-12-31`, `rut 12.345.678-5`, `dv 12345678` (compute the check digit), `comunas RM` (CUT codes). `--region`/`--comuna` apply regional or communal holidays (e.g. 20 August in Chillán); `--sabado` counts Saturdays as business days. Guides: [holidays](https://betterllama.com/en/guides/chile-holidays-api/), [business days](https://betterllama.com/en/guides/chile-business-days-api/), [RUT validation](https://betterllama.com/en/guides/chile-rut-validation-api/), [communes](https://betterllama.com/en/guides/chile-communes-api/). All guides: [Chile open data APIs](https://betterllama.com/en/guides/chile-open-data-apis/).
 - Free beta: the server applies per-IP rate limits; be gentle with loops.
 
 ---
@@ -356,6 +364,48 @@ Fuente: Comisión para el Mercado Financiero (CMF Chile), API CMF Bancos — htt
 ```
 
 Fuente: Comisión para el Mercado Financiero (CMF Chile), API CMF Bancos ([api.cmfchile.cl](https://api.cmfchile.cl/)). / Source: CMF Chile.
+
+### Feriados, días hábiles y RUT (Chile) / Holidays, business days and RUT
+
+Ejecutado el 2026-11-24, hora de Chile / Run on 2026-11-24, Chile time.
+
+`python calendario_rut.py` (feriados que quedan en 2026 / holidays left in 2026):
+
+```text
+2026-12-08 martes    Inmaculada Concepción
+2026-12-25 viernes   Navidad (irrenunciable)
+```
+
+`python calendario_rut.py plazo 2026-12-15 10`:
+
+```text
+2026-12-15 + 10 días hábiles = 2026-12-30 (miércoles)
+  Se cuenta desde el día siguiente a startDate (excluido).
+```
+
+`python calendario_rut.py plazo 2026-12-15 10 --sabado` (sábado hábil / Saturday counts):
+
+```text
+2026-12-15 + 10 días hábiles = 2026-12-28 (lunes)
+  Se cuenta desde el día siguiente a startDate (excluido).
+```
+
+`python calendario_rut.py habiles 2026-12-01 2026-12-31`:
+
+```text
+2026-12-01 a 2026-12-31: 21 días hábiles de 31 (8 de fin de semana, 2 feriados en día laboral)
+  2026-12-08 Inmaculada Concepción
+  2026-12-25 Navidad
+```
+
+`python calendario_rut.py rut 12.345.678-5 11.111.111-2` (RUT de ejemplo / sample RUTs):
+
+```text
+12.345.678-5   válido   12.345.678-5
+11.111.111-2   inválido dígito verificador incorrecto (DV esperado 1)
+```
+
+Atribución / attribution: _Calculado por Better Llama a partir de leyes de feriados y la División Político-Administrativa publicadas por el Estado de Chile._
 
 ## Licencia / License
 
