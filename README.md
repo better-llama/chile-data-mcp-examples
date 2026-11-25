@@ -50,6 +50,16 @@ OPENAI_API_KEY=... python python/langchain_agent.py "¿Cuánto vale la UF hoy?" 
 
 Probado con langchain-mcp-adapters 0.3.2, langchain 1.5 y langgraph 1.2. Cualquier modelo de `init_chat_model` sirve con `LLM_MODEL` (p. ej. `anthropic:claude-sonnet-4-5`) y la clave de ese proveedor.
 
+**OpenAI Agents SDK** (`openai-agents`, servidor MCP por Streamable HTTP):
+
+```bash
+pip install -r python/requirements-openai-agents.txt
+python python/openai_agents_sdk.py                # lista las 15 herramientas y llama UF, dólar y TPM sin LLM
+OPENAI_API_KEY=... python python/openai_agents_sdk.py "¿Cuánto vale la UF hoy?"   # Agent con mcp_servers que elige las herramientas
+```
+
+Probado con openai-agents 0.26 y mcp 2.3 (sirve el mismo entorno que el resto de los ejemplos Python). Cambia el modelo con `LLM_MODEL` (por defecto `gpt-4.1-mini`).
+
 **Node.js 18+** (JavaScript, sin dependencias salvo el ejemplo del SDK):
 
 ```bash
@@ -81,6 +91,7 @@ Probado con Node.js 24 y @modelcontextprotocol/sdk 1.32.
 | `python/sismos.py` | `get_chile_earthquakes`: sismos de Chile (USGS, dominio público) con hora de Chile; `hoy`, `fuertes` (M>=5 del último año por magnitud), `cerca <lat> <lon> <km>`, `tsunami` (últimos 10 años) y `percibidos`; opciones `--min`, `--max` e `--islas` (incluye Isla de Pascua y Juan Fernández). Sin clave. |
 | `python/agent_mcp_sdk.py` | Cliente con el SDK oficial de MCP para Python (streamable HTTP). |
 | `python/langchain_agent.py` | LangChain / LangGraph con `langchain-mcp-adapters`: las 15 herramientas como tools de LangChain, llamadas directas sin LLM (UF, dólar, TPM) y un agente `create_agent` si defines `OPENAI_API_KEY` o `LLM_MODEL`. Dependencias en `python/requirements-langchain.txt`. |
+| `python/openai_agents_sdk.py` | OpenAI Agents SDK con `MCPServerStreamableHttp`: lista las 15 herramientas, llamadas directas sin LLM (UF, dólar, TPM) y un `Agent` con `mcp_servers` si defines `OPENAI_API_KEY`. Dependencias en `python/requirements-openai-agents.txt`. |
 | `node/mcp_http.mjs` | Cliente JSON-RPC mínimo en JavaScript con `fetch` (Node.js 18+), sin dependencias; mismo contrato que `mcp_http.py`. |
 | `node/list_tools.mjs`, `node/indicadores.mjs`, `node/sismos.mjs`, `node/calendario_rut.mjs` | Versiones en Node.js de los ejemplos de Python (herramientas, indicadores CMF/Banco Central, sismos, feriados/plazos/RUT). |
 | `node/latam.mjs` | `colombia_trm`, `peru_bcrp_series` y `mexico_banxico_indicators` en un solo script: TRM de Colombia, tipo de cambio y tasa de referencia del BCRP (Perú), FIX, UDIS y tasa objetivo de Banxico (México). Argumentos `co`, `pe` o `mx` para un solo país. Sin clave. |
@@ -181,6 +192,16 @@ OPENAI_API_KEY=... python python/langchain_agent.py "What is the UF today?"   # 
 ```
 
 Tested with langchain-mcp-adapters 0.3.2, langchain 1.5 and langgraph 1.2. Any `init_chat_model` id works via `LLM_MODEL` (e.g. `anthropic:claude-sonnet-4-5`) with that provider's key.
+
+**OpenAI Agents SDK** (`openai-agents`, MCP server over Streamable HTTP):
+
+```bash
+pip install -r python/requirements-openai-agents.txt
+python python/openai_agents_sdk.py                # lists the 15 tools; calls UF, USD and policy rate without an LLM
+OPENAI_API_KEY=... python python/openai_agents_sdk.py "What is the UF today?"   # Agent with mcp_servers picks the tools
+```
+
+Tested with openai-agents 0.26 and mcp 2.3 (same environment as the other Python examples). Change the model with `LLM_MODEL` (default `gpt-4.1-mini`).
 
 **Node.js 18+** (JavaScript, zero dependencies except the SDK example):
 
@@ -567,6 +588,20 @@ CMF dolar 2026-11-25  1025.06
 BCCh TPM   2026-11-25  4.5 %
 
 Set OPENAI_API_KEY (or LLM_MODEL + your provider key) to run the agent step.
+```
+
+### OpenAI Agents SDK (25-11-2026)
+
+```text
+$ python python/openai_agents_sdk.py
+15 MCP tools from https://mcp.betterllama.com/mcp:
+  chile_calendar_and_rut, chilexpress_shipping, colombia_secop_search, colombia_trm, find_chile_fuel_prices, get_chile_central_bank_series, get_chile_earthquakes, get_chile_electricity_market, get_chile_financial_indicators, get_santiago_stock_exchange_data, mexico_banxico_indicators, peru_bcrp_series, search_chile_official_gazette, search_chile_public_tenders, search_tools
+
+CMF uf    2026-11-25  41405.45
+CMF dolar 2026-11-25  1025.06
+BCCh TPM   2026-11-25  4.5 %
+
+Set OPENAI_API_KEY to run the agent step.
 ```
 
 ## Licencia / License

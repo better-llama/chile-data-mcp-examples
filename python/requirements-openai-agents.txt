@@ -1,0 +1,2 @@
+# For openai_agents_sdk.py (OpenAI Agents SDK; tested with openai-agents 0.26 / mcp 2.3).
+openai-agents>=0.26
