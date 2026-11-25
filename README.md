@@ -1,8 +1,8 @@
 # chile-data-mcp-examples
 
-Ejemplos ejecutables para usar el servidor MCP gratuito (beta) de [Better Llama](https://betterllama.com) con datos públicos de Chile, Colombia, Perú y México: indicadores económicos (CMF, Banco Central), precios de bencina (CNE), sismos (USGS), Mercado Público, Chilexpress, Diario Oficial, mercado eléctrico, Bolsa de Santiago, feriados y RUT. Compras públicas de Colombia (SECOP II). Series del Banco Central de Reserva del Perú (BCRP) e indicadores del Banco de México (Banxico: tipo de cambio FIX, UDIS, TIIE, tasa objetivo, inflación). TRM de Colombia (tasa de cambio oficial COP/USD). Ejemplo CMF Chile (UF, dólar observado, euro, UTM, IPC y tasa máxima convencional). Nuevo: feriados de Chile, días hábiles y plazos, validación de RUT y comunas con código CUT (`calendario_rut.py`, sin clave).
+Ejemplos ejecutables para usar el servidor MCP gratuito (beta) de [Better Llama](https://betterllama.com) con datos públicos de Chile, Colombia, Perú y México: indicadores económicos (CMF, Banco Central), precios de bencina (CNE), sismos (USGS), Mercado Público, Chilexpress, Diario Oficial, mercado eléctrico, Bolsa de Santiago, feriados y RUT. Compras públicas de Colombia (SECOP II). Series del Banco Central de Reserva del Perú (BCRP) e indicadores del Banco de México (Banxico: tipo de cambio FIX, UDIS, TIIE, tasa objetivo, inflación). TRM de Colombia (tasa de cambio oficial COP/USD). Ejemplo CMF Chile (UF, dólar observado, euro, UTM, IPC y tasa máxima convencional). Feriados de Chile, días hábiles y plazos, validación de RUT y comunas con código CUT (`calendario_rut.py`, sin clave). Nuevo: ejemplos en JavaScript para Node.js 18+ sin dependencias (carpeta [`node/`](node/)) y con el SDK oficial de MCP.
 
-Runnable examples for Better Llama's free (beta) MCP server with Chilean, Colombian, Peruvian and Mexican public data. English below.
+Runnable examples (Python and Node.js) for Better Llama's free (beta) MCP server with Chilean, Colombian, Peruvian and Mexican public data. English below.
 
 | | |
 |---|---|
@@ -39,6 +39,19 @@ python agent_mcp_sdk.py    # SDK oficial "mcp": search_tools + sismos
 
 Requiere Python 3.10+. Probado con Python 3.13, httpx 0.28 y mcp 2.3.0.
 
+**Node.js 18+** (JavaScript, sin dependencias salvo el ejemplo del SDK):
+
+```bash
+cd node
+node list_tools.mjs        # lista las 15 herramientas
+node indicadores.mjs       # UF, dólar, UTM (CMF) + TPM, IMACEC (Banco Central)
+node sismos.mjs fuertes    # sismos M>=5 del último año; también hoy, cerca <lat> <lon> <km>
+node calendario_rut.mjs    # feriados que quedan del año; también plazo <fecha> <n>, rut <rut>...
+npm install && node agent_mcp_sdk.mjs   # SDK oficial @modelcontextprotocol/sdk: search_tools + UF
+```
+
+Probado con Node.js 24 y @modelcontextprotocol/sdk 1.32.
+
 ### Archivos
 
 | Archivo | Qué hace |
@@ -55,6 +68,9 @@ Requiere Python 3.10+. Probado con Python 3.13, httpx 0.28 y mcp 2.3.0.
 | `python/calendario_rut.py` | `chile_calendar_and_rut`: feriados de Chile (nacionales, regionales y comunales, 2022–2035), `es-feriado`, `plazo` (sumar N días hábiles), `habiles` (contar días hábiles entre dos fechas), `rut`/`dv` (validar RUT o calcular el dígito verificador) y `comunas` (códigos CUT por región). Opciones `--region`, `--comuna` y `--sabado`. Cálculo local, sin clave ni datos personales. |
 | `python/sismos.py` | `get_chile_earthquakes`: sismos de Chile (USGS, dominio público) con hora de Chile; `hoy`, `fuertes` (M>=5 del último año por magnitud), `cerca <lat> <lon> <km>`, `tsunami` (últimos 10 años) y `percibidos`; opciones `--min`, `--max` e `--islas` (incluye Isla de Pascua y Juan Fernández). Sin clave. |
 | `python/agent_mcp_sdk.py` | Cliente con el SDK oficial de MCP para Python (streamable HTTP). |
+| `node/mcp_http.mjs` | Cliente JSON-RPC mínimo en JavaScript con `fetch` (Node.js 18+), sin dependencias; mismo contrato que `mcp_http.py`. |
+| `node/list_tools.mjs`, `node/indicadores.mjs`, `node/sismos.mjs`, `node/calendario_rut.mjs` | Versiones en Node.js de los ejemplos de Python (herramientas, indicadores CMF/Banco Central, sismos, feriados/plazos/RUT). |
+| `node/agent_mcp_sdk.mjs` | Cliente con el SDK oficial de MCP para TypeScript/JavaScript (`StreamableHTTPClientTransport`). |
 | `config/` | Configuración para Cursor, VS Code y Claude Desktop. |
 
 ### Herramientas
@@ -132,6 +148,19 @@ python agent_mcp_sdk.py     # official "mcp" SDK: search_tools + earthquakes
 ```
 
 Python 3.10+. Tested with Python 3.13, httpx 0.28 and mcp 2.3.0. With mcp 1.x, import `streamablehttp_client` instead; it yields `(read, write, get_session_id)`.
+
+**Node.js 18+** (JavaScript, zero dependencies except the SDK example):
+
+```bash
+cd node
+node list_tools.mjs        # list the 15 tools
+node indicadores.mjs       # UF, USD, UTM (CMF) + policy rate, IMACEC (Central Bank)
+node sismos.mjs fuertes    # Chile earthquakes M>=5 in the last year; also hoy, cerca <lat> <lon> <km>
+node calendario_rut.mjs    # Chile holidays left this year; also plazo <date> <n>, rut <rut>...
+npm install && node agent_mcp_sdk.mjs   # official @modelcontextprotocol/sdk: search_tools + UF
+```
+
+`node/mcp_http.mjs` is a ~70-line client (built-in `fetch`, JSON and SSE responses) you can copy into any Node.js, Deno, Bun or edge project. Tested with Node.js 24 and @modelcontextprotocol/sdk 1.32.
 
 ### Notes
 
@@ -448,6 +477,31 @@ Fuente: U.S. Geological Survey (USGS), Earthquake Hazards Program — dominio p�
   2026-10-25 21:55 (Chile)  M4.2     22 km  40 km W of Valparaíso, Chile
 
 Fuente: U.S. Geological Survey (USGS), Earthquake Hazards Program — dominio público.
+```
+
+### Node.js (25-11-2026)
+
+```text
+$ node indicadores.mjs
+CMF Chile (get_chile_financial_indicators):
+  Unidad de Fomento (UF): 41.405,45 CLP (2026-11-25)
+  Dólar observado (USD): 1.025,06 CLP (2026-11-25)
+  Unidad Tributaria Mensual (UTM): 72.440 CLP (2026-11-01)
+  Fuente: Comisión para el Mercado Financiero (CMF Chile), API CMF Bancos — https://www.cmfchile.cl
+
+Banco Central de Chile (get_chile_central_bank_series):
+  Tasa de política monetaria (TPM) (porcentaje): 4.50 (2026-11-25)
+  Imacec empalmado, serie original (índice 2018=100): 109.77 (2026-09-01)
+  Fuente: Banco Central de Chile, Base de Datos Estadísticos — https://si3.bcentral.cl
+
+$ node calendario_rut.mjs plazo 2026-12-15 10
+2026-12-15 + 10 días hábiles = 2026-12-30 (miércoles)
+  Se cuenta desde el día siguiente a startDate (excluido).
+
+$ node agent_mcp_sdk.mjs
+Connected to betterllama 0.5.1
+15 tools: search_tools, search_chile_public_tenders, get_chile_financial_indicators, ...
+Unidad de Fomento (UF): 41405.45 CLP (2026-11-25)
 ```
 
 ## Licencia / License

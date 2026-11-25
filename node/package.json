@@ -1,0 +1,18 @@
+{
+  "name": "chile-data-mcp-examples-node",
+  "private": true,
+  "type": "module",
+  "description": "Node.js examples for the Better Llama MCP server (Chile, Colombia, Peru and Mexico public data).",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "tools": "node list_tools.mjs",
+    "indicadores": "node indicadores.mjs",
+    "sismos": "node sismos.mjs",
+    "calendario": "node calendario_rut.mjs",
+    "sdk": "node agent_mcp_sdk.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2"
+  },
+  "license": "MIT"
+}
