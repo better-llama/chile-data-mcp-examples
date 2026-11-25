@@ -1,0 +1,4 @@
+# Separate venv for langchain_agent.py (langchain-mcp-adapters depends on mcp 1.x).
+langchain-mcp-adapters>=0.3
+langchain>=1.0
+langchain-openai>=1.0   # or langchain-anthropic, langchain-google-genai... for LLM_MODEL

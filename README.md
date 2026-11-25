@@ -1,6 +1,6 @@
 # chile-data-mcp-examples
 
-Ejemplos ejecutables para usar el servidor MCP gratuito (beta) de [Better Llama](https://betterllama.com) con datos públicos de Chile, Colombia, Perú y México: indicadores económicos (CMF, Banco Central), precios de bencina (CNE), sismos (USGS), Mercado Público, Chilexpress, Diario Oficial, mercado eléctrico, Bolsa de Santiago, feriados y RUT. Compras públicas de Colombia (SECOP II). Series del Banco Central de Reserva del Perú (BCRP) e indicadores del Banco de México (Banxico: tipo de cambio FIX, UDIS, TIIE, tasa objetivo, inflación). TRM de Colombia (tasa de cambio oficial COP/USD). Ejemplo CMF Chile (UF, dólar observado, euro, UTM, IPC y tasa máxima convencional). Feriados de Chile, días hábiles y plazos, validación de RUT y comunas con código CUT (`calendario_rut.py`, sin clave). Nuevo: ejemplos en JavaScript para Node.js 18+ sin dependencias (carpeta [`node/`](node/)) y con el SDK oficial de MCP.
+Ejemplos ejecutables para usar el servidor MCP gratuito (beta) de [Better Llama](https://betterllama.com) con datos públicos de Chile, Colombia, Perú y México: indicadores económicos (CMF, Banco Central), precios de bencina (CNE), sismos (USGS), Mercado Público, Chilexpress, Diario Oficial, mercado eléctrico, Bolsa de Santiago, feriados y RUT. Compras públicas de Colombia (SECOP II). Series del Banco Central de Reserva del Perú (BCRP) e indicadores del Banco de México (Banxico: tipo de cambio FIX, UDIS, TIIE, tasa objetivo, inflación). TRM de Colombia (tasa de cambio oficial COP/USD). Ejemplo CMF Chile (UF, dólar observado, euro, UTM, IPC y tasa máxima convencional). Feriados de Chile, días hábiles y plazos, validación de RUT y comunas con código CUT (`calendario_rut.py`, sin clave). Ejemplos en JavaScript para Node.js 18+ sin dependencias (carpeta [`node/`](node/)) y con el SDK oficial de MCP. Nuevo: agente con LangChain / LangGraph ([`python/langchain_agent.py`](python/langchain_agent.py)).
 
 Runnable examples (Python and Node.js) for Better Llama's free (beta) MCP server with Chilean, Colombian, Peruvian and Mexican public data. English below.
 
@@ -39,6 +39,17 @@ python agent_mcp_sdk.py    # SDK oficial "mcp": search_tools + sismos
 
 Requiere Python 3.10+. Probado con Python 3.13, httpx 0.28 y mcp 2.3.0.
 
+**LangChain / LangGraph** (en otro entorno virtual, porque `langchain-mcp-adapters` usa mcp 1.x):
+
+```bash
+python3 -m venv .venv-lc && source .venv-lc/bin/activate
+pip install -r python/requirements-langchain.txt
+python python/langchain_agent.py                  # carga las 15 herramientas como tools de LangChain y llama UF, dólar y TPM sin LLM
+OPENAI_API_KEY=... python python/langchain_agent.py "¿Cuánto vale la UF hoy?"   # agente create_agent que elige las herramientas
+```
+
+Probado con langchain-mcp-adapters 0.3.2, langchain 1.5 y langgraph 1.2. Cualquier modelo de `init_chat_model` sirve con `LLM_MODEL` (p. ej. `anthropic:claude-sonnet-4-5`) y la clave de ese proveedor.
+
 **Node.js 18+** (JavaScript, sin dependencias salvo el ejemplo del SDK):
 
 ```bash
@@ -69,6 +80,7 @@ Probado con Node.js 24 y @modelcontextprotocol/sdk 1.32.
 | `python/calendario_rut.py` | `chile_calendar_and_rut`: feriados de Chile (nacionales, regionales y comunales, 2022–2035), `es-feriado`, `plazo` (sumar N días hábiles), `habiles` (contar días hábiles entre dos fechas), `rut`/`dv` (validar RUT o calcular el dígito verificador) y `comunas` (códigos CUT por región). Opciones `--region`, `--comuna` y `--sabado`. Cálculo local, sin clave ni datos personales. |
 | `python/sismos.py` | `get_chile_earthquakes`: sismos de Chile (USGS, dominio público) con hora de Chile; `hoy`, `fuertes` (M>=5 del último año por magnitud), `cerca <lat> <lon> <km>`, `tsunami` (últimos 10 años) y `percibidos`; opciones `--min`, `--max` e `--islas` (incluye Isla de Pascua y Juan Fernández). Sin clave. |
 | `python/agent_mcp_sdk.py` | Cliente con el SDK oficial de MCP para Python (streamable HTTP). |
+| `python/langchain_agent.py` | LangChain / LangGraph con `langchain-mcp-adapters`: las 15 herramientas como tools de LangChain, llamadas directas sin LLM (UF, dólar, TPM) y un agente `create_agent` si defines `OPENAI_API_KEY` o `LLM_MODEL`. Dependencias en `python/requirements-langchain.txt`. |
 | `node/mcp_http.mjs` | Cliente JSON-RPC mínimo en JavaScript con `fetch` (Node.js 18+), sin dependencias; mismo contrato que `mcp_http.py`. |
 | `node/list_tools.mjs`, `node/indicadores.mjs`, `node/sismos.mjs`, `node/calendario_rut.mjs` | Versiones en Node.js de los ejemplos de Python (herramientas, indicadores CMF/Banco Central, sismos, feriados/plazos/RUT). |
 | `node/latam.mjs` | `colombia_trm`, `peru_bcrp_series` y `mexico_banxico_indicators` en un solo script: TRM de Colombia, tipo de cambio y tasa de referencia del BCRP (Perú), FIX, UDIS y tasa objetivo de Banxico (México). Argumentos `co`, `pe` o `mx` para un solo país. Sin clave. |
@@ -158,6 +170,17 @@ python agent_mcp_sdk.py     # official "mcp" SDK: search_tools + earthquakes
 ```
 
 Python 3.10+. Tested with Python 3.13, httpx 0.28 and mcp 2.3.0. With mcp 1.x, import `streamablehttp_client` instead; it yields `(read, write, get_session_id)`.
+
+**LangChain / LangGraph** (separate venv: `langchain-mcp-adapters` depends on mcp 1.x):
+
+```bash
+python3 -m venv .venv-lc && source .venv-lc/bin/activate
+pip install -r python/requirements-langchain.txt
+python python/langchain_agent.py                  # loads the 15 tools as LangChain tools; calls UF, USD and policy rate without an LLM
+OPENAI_API_KEY=... python python/langchain_agent.py "What is the UF today?"   # create_agent picks the tools
+```
+
+Tested with langchain-mcp-adapters 0.3.2, langchain 1.5 and langgraph 1.2. Any `init_chat_model` id works via `LLM_MODEL` (e.g. `anthropic:claude-sonnet-4-5`) with that provider's key.
 
 **Node.js 18+** (JavaScript, zero dependencies except the SDK example):
 
@@ -530,6 +553,20 @@ Mexico - Banxico (mexico_banxico_indicators):
     published ahead: 8.980803 for 2026-12-10
   Tasa objetivo de política monetaria del Banco de México: 6.25 % anual (2026-11-25)
   Fuente: Banco de México (SIE), https://www.banxico.org.mx/SieAPIRest/ — reutilización permitida citando la fuente
+```
+
+### LangChain (25-11-2026)
+
+```text
+$ python python/langchain_agent.py
+15 LangChain tools from https://mcp.betterllama.com/mcp:
+  chile_calendar_and_rut, chilexpress_shipping, colombia_secop_search, colombia_trm, find_chile_fuel_prices, get_chile_central_bank_series, get_chile_earthquakes, get_chile_electricity_market, get_chile_financial_indicators, get_santiago_stock_exchange_data, mexico_banxico_indicators, peru_bcrp_series, search_chile_official_gazette, search_chile_public_tenders, search_tools
+
+CMF uf    2026-11-25  41405.45
+CMF dolar 2026-11-25  1025.06
+BCCh TPM   2026-11-25  4.5 %
+
+Set OPENAI_API_KEY (or LLM_MODEL + your provider key) to run the agent step.
 ```
 
 ## Licencia / License
