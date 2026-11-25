@@ -47,6 +47,7 @@ node list_tools.mjs        # lista las 15 herramientas
 node indicadores.mjs       # UF, dólar, UTM (CMF) + TPM, IMACEC (Banco Central)
 node sismos.mjs fuertes    # sismos M>=5 del último año; también hoy, cerca <lat> <lon> <km>
 node calendario_rut.mjs    # feriados que quedan del año; también plazo <fecha> <n>, rut <rut>...
+node latam.mjs            # Colombia TRM, Peru BCRP, Mexico Banxico (co | pe | mx)
 npm install && node agent_mcp_sdk.mjs   # SDK oficial @modelcontextprotocol/sdk: search_tools + UF
 ```
 
@@ -70,8 +71,9 @@ Probado con Node.js 24 y @modelcontextprotocol/sdk 1.32.
 | `python/agent_mcp_sdk.py` | Cliente con el SDK oficial de MCP para Python (streamable HTTP). |
 | `node/mcp_http.mjs` | Cliente JSON-RPC mínimo en JavaScript con `fetch` (Node.js 18+), sin dependencias; mismo contrato que `mcp_http.py`. |
 | `node/list_tools.mjs`, `node/indicadores.mjs`, `node/sismos.mjs`, `node/calendario_rut.mjs` | Versiones en Node.js de los ejemplos de Python (herramientas, indicadores CMF/Banco Central, sismos, feriados/plazos/RUT). |
+| `node/latam.mjs` | `colombia_trm`, `peru_bcrp_series` y `mexico_banxico_indicators` en un solo script: TRM de Colombia, tipo de cambio y tasa de referencia del BCRP (Perú), FIX, UDIS y tasa objetivo de Banxico (México). Argumentos `co`, `pe` o `mx` para un solo país. Sin clave. |
 | `node/agent_mcp_sdk.mjs` | Cliente con el SDK oficial de MCP para TypeScript/JavaScript (`StreamableHTTPClientTransport`). |
-| `config/` | Configuración para Cursor, VS Code y Claude Desktop. |
+| `config/` | Configuración para Cursor, VS Code, Claude Desktop, Windsurf, Gemini CLI y Codex. |
 
 ### Herramientas
 
@@ -93,6 +95,14 @@ Consejo para agentes: llama primero `search_tools` con la tarea ("valor UF", "li
 **VS Code** (`.vscode/mcp.json`): [`config/vscode-mcp.json`](config/vscode-mcp.json) (`"type": "http"`).
 
 **Claude Desktop / claude.ai**: Settings > Connectors > Add custom connector, URL `https://mcp.betterllama.com/mcp`. Si tu versión solo acepta servidores locales, usa el puente `mcp-remote` de [`config/claude_desktop_config.json`](config/claude_desktop_config.json) (requiere Node.js).
+
+**Claude Code**: `claude mcp add --transport http betterllama https://mcp.betterllama.com/mcp`.
+
+**Codex** (CLI y extensión): agrega a `~/.codex/config.toml` el bloque de [`config/codex-config.toml`](config/codex-config.toml) (`[mcp_servers.betterllama]` con `url`).
+
+**Gemini CLI** (`~/.gemini/settings.json`): [`config/gemini-settings.json`](config/gemini-settings.json) (`"httpUrl"`).
+
+**Windsurf** (`~/.codeium/windsurf/mcp_config.json`): [`config/windsurf-mcp_config.json`](config/windsurf-mcp_config.json) (`"serverUrl"`).
 
 **n8n**: agrega el nodo *MCP Client Tool* a un AI Agent, Endpoint `https://mcp.betterllama.com/mcp`, Server Transport *HTTP Streamable*, Authentication *None*. Elige "All" o selecciona herramientas. O importa el workflow listo [`n8n/chile-data-mcp-workflow.json`](n8n/chile-data-mcp-workflow.json) (menú *Import from File*: Chat Trigger + AI Agent + MCP Client Tool; solo elige tu credencial del modelo).
 
@@ -157,6 +167,7 @@ node list_tools.mjs        # list the 15 tools
 node indicadores.mjs       # UF, USD, UTM (CMF) + policy rate, IMACEC (Central Bank)
 node sismos.mjs fuertes    # Chile earthquakes M>=5 in the last year; also hoy, cerca <lat> <lon> <km>
 node calendario_rut.mjs    # Chile holidays left this year; also plazo <date> <n>, rut <rut>...
+node latam.mjs            # Colombia TRM, Peru BCRP, Mexico Banxico (co | pe | mx)
 npm install && node agent_mcp_sdk.mjs   # official @modelcontextprotocol/sdk: search_tools + UF
 ```
 
@@ -167,7 +178,7 @@ npm install && node agent_mcp_sdk.mjs   # official @modelcontextprotocol/sdk: se
 - The server is stateless Streamable HTTP; no auth. Every POST must send `Accept: application/json, text/event-stream`.
 - Tool results come as a JSON string in `content[0].text`, with the official source attribution. Please cite the source when showing data.
 - `search_chile_public_tenders` and `get_santiago_stock_exchange_data` need your own free provider key (bring your own key). All other tools work without a key.
-- Client setup (Cursor, VS Code, Claude Desktop, n8n, curl): see the Spanish section above and `config/`.
+- Client setup (Cursor, VS Code, Claude Desktop, Claude Code, Codex, Gemini CLI, Windsurf, n8n, curl): see the Spanish section above and `config/`. Claude Code: `claude mcp add --transport http betterllama https://mcp.betterllama.com/mcp`.
 - n8n: import [`n8n/chile-data-mcp-workflow.json`](n8n/chile-data-mcp-workflow.json) (*Import from File*): Chat Trigger + AI Agent + MCP Client Tool pointing to `https://mcp.betterllama.com/mcp` (HTTP Streamable, no auth). Just pick your chat-model credential.
 - Colombia: `colombia_secop_search` searches SECOP II signed contracts (`dataset: contratos`) or published processes (`procesos`) from datos.gov.co (CC BY-SA 4.0), no key. Guide: [Colombia SECOP API](https://betterllama.com/en/guides/colombia-secop-api/).
 - Peru: `peru_bcrp_series` returns official BCRP series (exchange rate, policy rate, inflation, GDP, reserves) by alias or BCRP code, no key; `python bcrp_peru.py --catalog` lists aliases. Guide: [Peru BCRP API](https://betterllama.com/en/guides/peru-bcrp-api/).
@@ -502,6 +513,23 @@ $ node agent_mcp_sdk.mjs
 Connected to betterllama 0.5.1
 15 tools: search_tools, search_chile_public_tenders, get_chile_financial_indicators, ...
 Unidad de Fomento (UF): 41405.45 CLP (2026-11-25)
+
+$ node latam.mjs
+Colombia - TRM (colombia_trm):
+  3,592.03 COP por 1 USD, in force 2026-11-25 .. 2026-11-25
+  Fuente: Superintendencia Financiera de Colombia vía datos.gov.co (Portal de Datos Abiertos www.datos.gov.co, conjunto "Tasa de Cambio Representativa del Mercado - TRM", 32sa-8pi3)
+
+Peru - BCRP (peru_bcrp_series):
+  Tipo de cambio - TC Interbancario (S/ por US$) - Venta: 3.452 S/ por US$ (2026-11-23)
+  Tasas de interés - Tasa de Referencia de la Política Monetaria: 4.5 % (2026-11-24)
+  Fuente: Banco Central de Reserva del Perú (BCRP), BCRPData — estadisticas.bcrp.gob.pe
+
+Mexico - Banxico (mexico_banxico_indicators):
+  Tipo de cambio FIX (pesos por dólar E.U.A., fecha de determinación): 19.3668 MXN por 1 USD (2026-11-24)
+  Valor de la UDI (Unidad de Inversión): 8.932476 MXN por 1 UDI (2026-11-25)
+    published ahead: 8.980803 for 2026-12-10
+  Tasa objetivo de política monetaria del Banco de México: 6.25 % anual (2026-11-25)
+  Fuente: Banco de México (SIE), https://www.banxico.org.mx/SieAPIRest/ — reutilización permitida citando la fuente
 ```
 
 ## Licencia / License
