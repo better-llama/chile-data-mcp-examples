@@ -1,6 +1,6 @@
 # chile-data-mcp-examples
 
-Ejemplos ejecutables para usar el servidor MCP gratuito (beta) de [Better Llama](https://betterllama.com) con datos públicos de Chile, Colombia, Perú y México: indicadores económicos (CMF, Banco Central), precios de bencina (CNE), sismos (USGS), Mercado Público, Chilexpress, Diario Oficial, mercado eléctrico, Bolsa de Santiago, feriados y RUT. Compras públicas de Colombia (SECOP II). Series del Banco Central de Reserva del Perú (BCRP) e indicadores del Banco de México (Banxico: tipo de cambio FIX, UDIS, TIIE, tasa objetivo, inflación). TRM de Colombia (tasa de cambio oficial COP/USD). Ejemplo CMF Chile (UF, dólar observado, euro, UTM, IPC y tasa máxima convencional). Feriados de Chile, días hábiles y plazos, validación de RUT y comunas con código CUT (`calendario_rut.py`, sin clave). Ejemplos en JavaScript para Node.js 18+ sin dependencias (carpeta [`node/`](node/)) y con el SDK oficial de MCP. Nuevo: agente con LangChain / LangGraph ([`python/langchain_agent.py`](python/langchain_agent.py)).
+Ejemplos ejecutables para usar el servidor MCP gratuito (beta) de [Better Llama](https://betterllama.com) con datos públicos de Chile, Colombia, Perú y México: indicadores económicos (CMF, Banco Central), precios de bencina (CNE), sismos (USGS), Mercado Público, Chilexpress, Diario Oficial, mercado eléctrico, Bolsa de Santiago, feriados y RUT. Compras públicas de Colombia (SECOP II). Series del Banco Central de Reserva del Perú (BCRP) e indicadores del Banco de México (Banxico: tipo de cambio FIX, UDIS, TIIE, tasa objetivo, inflación). TRM de Colombia (tasa de cambio oficial COP/USD). Ejemplo CMF Chile (UF, dólar observado, euro, UTM, IPC y tasa máxima convencional). Feriados de Chile, días hábiles y plazos, validación de RUT y comunas con código CUT (`calendario_rut.py`, sin clave). Ejemplos en JavaScript para Node.js 18+ sin dependencias (carpeta [`node/`](node/)) y con el SDK oficial de MCP. Nuevo: agente con LangChain / LangGraph ([`python/langchain_agent.py`](python/langchain_agent.py)) y con Mastra ([`node/mastra_agent.mjs`](node/mastra_agent.mjs)).
 
 Runnable examples (Python and Node.js) for Better Llama's free (beta) MCP server with Chilean, Colombian, Peruvian and Mexican public data. English below.
 
@@ -85,6 +85,17 @@ OPENAI_API_KEY=... node vercel_ai_sdk.mjs "¿Cuánto vale la UF hoy y cuál es l
 
 Probado con ai 7.0, @ai-sdk/mcp 2.0 y @ai-sdk/openai 4.0 (`createMCPClient({ transport: { type: "http", url } })`; en AI SDK 5 se llama `experimental_createMCPClient` y se importa desde `ai`). Cambia el modelo con `LLM_MODEL` (por defecto `gpt-4.1-mini`).
 
+**Mastra** (`@mastra/mcp` + `@mastra/core`, cliente MCP por Streamable HTTP; requiere Node.js 22.13+):
+
+```bash
+cd node && npm install
+node mastra_agent.mjs          # 15 herramientas como tools de Mastra; UF, dólar (CMF) y TRM de Colombia sin LLM
+node mastra_agent.mjs --mock   # prueba un Agent de Mastra con el modelo simulado de 'ai/test' (llamada real a la herramienta, sin LLM)
+OPENAI_API_KEY=... node mastra_agent.mjs "¿Cuánto vale la UF hoy y cuál es la TRM en Colombia?"   # el Agent elige las herramientas
+```
+
+Probado con @mastra/mcp 2.11 y @mastra/core 1.86 (`new MCPClient({ servers: { betterllama: { url: new URL("https://mcp.betterllama.com/mcp") } } })`; `listTools()` antepone el nombre del servidor: `betterllama_get_chile_financial_indicators`). Cambia el modelo con `LLM_MODEL` en formato `proveedor/modelo` (por defecto `openai/gpt-4.1-mini`).
+
 ### Archivos
 
 | Archivo | Qué hace |
@@ -108,6 +119,7 @@ Probado con ai 7.0, @ai-sdk/mcp 2.0 y @ai-sdk/openai 4.0 (`createMCPClient({ tra
 | `node/latam.mjs` | `colombia_trm`, `peru_bcrp_series` y `mexico_banxico_indicators` en un solo script: TRM de Colombia, tipo de cambio y tasa de referencia del BCRP (Perú), FIX, UDIS y tasa objetivo de Banxico (México). Argumentos `co`, `pe` o `mx` para un solo país. Sin clave. |
 | `node/agent_mcp_sdk.mjs` | Cliente con el SDK oficial de MCP para TypeScript/JavaScript (`StreamableHTTPClientTransport`). |
 | `node/vercel_ai_sdk.mjs` | Vercel AI SDK con `createMCPClient` (`@ai-sdk/mcp`): las 15 herramientas como tools del AI SDK, llamadas directas sin LLM (UF, dólar, TRM de Colombia) y `generateText` con las herramientas si defines `OPENAI_API_KEY` (`--mock` lo prueba sin LLM). Dependencias en `node/package.json`. |
+| `node/mastra_agent.mjs` | Mastra con `MCPClient` (`@mastra/mcp`): las 15 herramientas como tools de Mastra, llamadas directas sin LLM (UF, dólar, TRM de Colombia) y un `Agent` de `@mastra/core` con las herramientas si defines `OPENAI_API_KEY` (`--mock` lo prueba sin LLM). Node.js 22.13+. Dependencias en `node/package.json`. |
 | `config/` | Configuración para Cursor, VS Code, Claude Desktop, Windsurf, Gemini CLI y Codex. |
 
 ### Herramientas
@@ -239,6 +251,17 @@ OPENAI_API_KEY=... node vercel_ai_sdk.mjs "What is the UF today and Colombia's T
 ```
 
 Tested with ai 7.0, @ai-sdk/mcp 2.0 and @ai-sdk/openai 4.0 (`createMCPClient({ transport: { type: "http", url } })`; in AI SDK 5 it is `experimental_createMCPClient`, imported from `ai`). Change the model with `LLM_MODEL` (default `gpt-4.1-mini`).
+
+**Mastra** (`@mastra/mcp` + `@mastra/core`, MCP client over Streamable HTTP; needs Node.js 22.13+):
+
+```bash
+cd node && npm install
+node mastra_agent.mjs          # 15 tools as Mastra tools; UF, USD (CMF) and Colombia's TRM without an LLM
+node mastra_agent.mjs --mock   # checks a Mastra Agent with the mock model from 'ai/test' (real tool call, no LLM)
+OPENAI_API_KEY=... node mastra_agent.mjs "What is the UF today and Colombia's TRM?"   # the Agent picks the tools
+```
+
+Tested with @mastra/mcp 2.11 and @mastra/core 1.86 (`new MCPClient({ servers: { betterllama: { url: new URL("https://mcp.betterllama.com/mcp") } } })`; `listTools()` prefixes the server name: `betterllama_get_chile_financial_indicators`). Change the model with `LLM_MODEL` as `provider/model` (default `openai/gpt-4.1-mini`).
 
 ### Notes
 
@@ -646,6 +669,30 @@ Set OPENAI_API_KEY to run generateText with the tools (or --mock to check the wi
 
 $ node vercel_ai_sdk.mjs --mock   # (últimas líneas / last lines)
 tool call: get_chile_financial_indicators({"source":"uf","period":"current"})
+tool result: {"content":[{"type":"text","text":"{\"tool\":\"get_chile_financial_indicators\",\"count\":1,\"results\":[{\"indicator\":\"uf\",\"indicatorName\":\"Unidad de Fomento (UF)\",\"date\":\"2026-11-26\",\"ye...
+
+Answer: (mock) UF 41412.34 CLP al 2026-11-26.
+```
+
+### Mastra (26-11-2026)
+
+```text
+$ node mastra_agent.mjs
+15 tools: betterllama_search_tools, betterllama_search_chile_public_tenders, betterllama_get_chile_financial_indicators, betterllama_get_chile_central_bank_series, betterllama_find_chile_fuel_prices, betterllama_chilexpress_shipping, betterllama_get_chile_electricity_market, betterllama_search_chile_official_gazette, betterllama_get_chile_earthquakes, betterllama_get_santiago_stock_exchange_data, betterllama_chile_calendar_and_rut, betterllama_colombia_secop_search, betterllama_colombia_trm, betterllama_peru_bcrp_series, betterllama_mexico_banxico_indicators
+
+CMF Chile (get_chile_financial_indicators):
+  Unidad de Fomento (UF): 41.412,34 CLP (2026-11-26)
+  Dólar observado (USD): 1.044,08 CLP (2026-11-26)
+  Fuente: Comisión para el Mercado Financiero (CMF Chile), API CMF Bancos — https://www.cmfchile.cl
+
+Colombia - TRM (colombia_trm):
+  3.630,89 COP por 1 USD, 2026-11-26 .. 2026-11-27
+  Fuente: Superintendencia Financiera de Colombia vía datos.gov.co (Portal de Datos Abiertos www.datos.gov.co, conjunto "Tasa de Cambio Representativa del Mercado - TRM", 32sa-8pi3). Licencia CC BY-SA 4.0. La fecha de última actualización del conjunto viene en sourceUpdatedAt.
+
+Set OPENAI_API_KEY to run the Mastra Agent with the tools (or --mock to check the wiring without an LLM).
+
+$ node mastra_agent.mjs --mock   # (últimas líneas / last lines)
+tool call: betterllama_get_chile_financial_indicators({"source":"uf","period":"current"})
 tool result: {"content":[{"type":"text","text":"{\"tool\":\"get_chile_financial_indicators\",\"count\":1,\"results\":[{\"indicator\":\"uf\",\"indicatorName\":\"Unidad de Fomento (UF)\",\"date\":\"2026-11-26\",\"ye...
 
 Answer: (mock) UF 41412.34 CLP al 2026-11-26.
