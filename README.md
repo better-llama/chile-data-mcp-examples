@@ -39,6 +39,8 @@ python agent_mcp_sdk.py    # SDK oficial "mcp": search_tools + sismos
 
 Requiere Python 3.10+. Probado con Python 3.13, httpx 0.28 y mcp 2.3.0.
 
+Artículo con la guía paso a paso de los ejemplos de LangChain, OpenAI Agents SDK y Vercel AI SDK (Mastra usa el mismo MCP): [Cómo darle datos reales de Chile y LATAM a tu agente: LangChain, OpenAI Agents SDK y Vercel AI SDK](https://betterllama.com/blog/agente-ia-datos-chile-langchain-openai-agents-vercel-ai-sdk/).
+
 **LangChain / LangGraph** (en otro entorno virtual, porque `langchain-mcp-adapters` usa mcp 1.x):
 
 ```bash
@@ -205,6 +207,8 @@ python agent_mcp_sdk.py     # official "mcp" SDK: search_tools + earthquakes
 ```
 
 Python 3.10+. Tested with Python 3.13, httpx 0.28 and mcp 2.3.0. With mcp 1.x, import `streamablehttp_client` instead; it yields `(read, write, get_session_id)`.
+
+Step-by-step article for the LangChain, OpenAI Agents SDK and Vercel AI SDK examples (Mastra uses the same MCP): [How to give your AI agent real Chile and LATAM data: LangChain, OpenAI Agents SDK and Vercel AI SDK](https://betterllama.com/en/blog/ai-agent-chile-data-langchain-openai-agents-vercel-ai-sdk/).
 
 **LangChain / LangGraph** (separate venv: `langchain-mcp-adapters` depends on mcp 1.x):
 
