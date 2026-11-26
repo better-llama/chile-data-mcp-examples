@@ -1,5 +1,5 @@
 // Use the official MCP TypeScript/JavaScript SDK (streamable HTTP transport) against Better Llama.
-// Only this file needs `npm install`; the other examples have no dependencies.
+// Needs `npm install` (like vercel_ai_sdk.mjs); the other examples have no dependencies.
 // Usage: npm install && node agent_mcp_sdk.mjs
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";

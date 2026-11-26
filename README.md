@@ -60,7 +60,7 @@ OPENAI_API_KEY=... python python/openai_agents_sdk.py "¿Cuánto vale la UF hoy?
 
 Probado con openai-agents 0.26 y mcp 2.3 (sirve el mismo entorno que el resto de los ejemplos Python). Cambia el modelo con `LLM_MODEL` (por defecto `gpt-4.1-mini`).
 
-**Node.js 18+** (JavaScript, sin dependencias salvo el ejemplo del SDK):
+**Node.js 18+** (JavaScript, sin dependencias salvo los ejemplos del SDK de MCP y del Vercel AI SDK):
 
 ```bash
 cd node
@@ -73,6 +73,17 @@ npm install && node agent_mcp_sdk.mjs   # SDK oficial @modelcontextprotocol/sdk:
 ```
 
 Probado con Node.js 24 y @modelcontextprotocol/sdk 1.32.
+
+**Vercel AI SDK** (`ai` + `@ai-sdk/mcp`, cliente MCP por Streamable HTTP):
+
+```bash
+cd node && npm install
+node vercel_ai_sdk.mjs          # 15 herramientas como tools del AI SDK; UF, dólar (CMF) y TRM de Colombia sin LLM
+node vercel_ai_sdk.mjs --mock   # prueba generateText con el modelo simulado de 'ai/test' (llamada real a la herramienta, sin LLM)
+OPENAI_API_KEY=... node vercel_ai_sdk.mjs "¿Cuánto vale la UF hoy y cuál es la TRM en Colombia?"   # generateText elige las herramientas
+```
+
+Probado con ai 7.0, @ai-sdk/mcp 2.0 y @ai-sdk/openai 4.0 (`createMCPClient({ transport: { type: "http", url } })`; en AI SDK 5 se llama `experimental_createMCPClient` y se importa desde `ai`). Cambia el modelo con `LLM_MODEL` (por defecto `gpt-4.1-mini`).
 
 ### Archivos
 
@@ -96,6 +107,7 @@ Probado con Node.js 24 y @modelcontextprotocol/sdk 1.32.
 | `node/list_tools.mjs`, `node/indicadores.mjs`, `node/sismos.mjs`, `node/calendario_rut.mjs` | Versiones en Node.js de los ejemplos de Python (herramientas, indicadores CMF/Banco Central, sismos, feriados/plazos/RUT). |
 | `node/latam.mjs` | `colombia_trm`, `peru_bcrp_series` y `mexico_banxico_indicators` en un solo script: TRM de Colombia, tipo de cambio y tasa de referencia del BCRP (Perú), FIX, UDIS y tasa objetivo de Banxico (México). Argumentos `co`, `pe` o `mx` para un solo país. Sin clave. |
 | `node/agent_mcp_sdk.mjs` | Cliente con el SDK oficial de MCP para TypeScript/JavaScript (`StreamableHTTPClientTransport`). |
+| `node/vercel_ai_sdk.mjs` | Vercel AI SDK con `createMCPClient` (`@ai-sdk/mcp`): las 15 herramientas como tools del AI SDK, llamadas directas sin LLM (UF, dólar, TRM de Colombia) y `generateText` con las herramientas si defines `OPENAI_API_KEY` (`--mock` lo prueba sin LLM). Dependencias en `node/package.json`. |
 | `config/` | Configuración para Cursor, VS Code, Claude Desktop, Windsurf, Gemini CLI y Codex. |
 
 ### Herramientas
@@ -203,7 +215,7 @@ OPENAI_API_KEY=... python python/openai_agents_sdk.py "What is the UF today?"   
 
 Tested with openai-agents 0.26 and mcp 2.3 (same environment as the other Python examples). Change the model with `LLM_MODEL` (default `gpt-4.1-mini`).
 
-**Node.js 18+** (JavaScript, zero dependencies except the SDK example):
+**Node.js 18+** (JavaScript, zero dependencies except the MCP SDK and Vercel AI SDK examples):
 
 ```bash
 cd node
@@ -216,6 +228,17 @@ npm install && node agent_mcp_sdk.mjs   # official @modelcontextprotocol/sdk: se
 ```
 
 `node/mcp_http.mjs` is a ~70-line client (built-in `fetch`, JSON and SSE responses) you can copy into any Node.js, Deno, Bun or edge project. Tested with Node.js 24 and @modelcontextprotocol/sdk 1.32.
+
+**Vercel AI SDK** (`ai` + `@ai-sdk/mcp`, MCP client over Streamable HTTP):
+
+```bash
+cd node && npm install
+node vercel_ai_sdk.mjs          # 15 tools as AI SDK tools; UF, USD (CMF) and Colombia's TRM without an LLM
+node vercel_ai_sdk.mjs --mock   # checks generateText with the mock model from 'ai/test' (real tool call, no LLM)
+OPENAI_API_KEY=... node vercel_ai_sdk.mjs "What is the UF today and Colombia's TRM?"   # generateText picks the tools
+```
+
+Tested with ai 7.0, @ai-sdk/mcp 2.0 and @ai-sdk/openai 4.0 (`createMCPClient({ transport: { type: "http", url } })`; in AI SDK 5 it is `experimental_createMCPClient`, imported from `ai`). Change the model with `LLM_MODEL` (default `gpt-4.1-mini`).
 
 ### Notes
 
@@ -602,6 +625,30 @@ CMF dolar 2026-11-25  1025.06
 BCCh TPM   2026-11-25  4.5 %
 
 Set OPENAI_API_KEY to run the agent step.
+```
+
+### Vercel AI SDK (26-11-2026)
+
+```text
+$ node vercel_ai_sdk.mjs
+15 tools: search_tools, search_chile_public_tenders, get_chile_financial_indicators, get_chile_central_bank_series, find_chile_fuel_prices, chilexpress_shipping, get_chile_electricity_market, search_chile_official_gazette, get_chile_earthquakes, get_santiago_stock_exchange_data, chile_calendar_and_rut, colombia_secop_search, colombia_trm, peru_bcrp_series, mexico_banxico_indicators
+
+CMF Chile (get_chile_financial_indicators):
+  Unidad de Fomento (UF): 41.412,34 CLP (2026-11-26)
+  Dólar observado (USD): 1.044,08 CLP (2026-11-26)
+  Fuente: Comisión para el Mercado Financiero (CMF Chile), API CMF Bancos — https://www.cmfchile.cl
+
+Colombia - TRM (colombia_trm):
+  3.630,89 COP por 1 USD, 2026-11-26 .. 2026-11-27
+  Fuente: Superintendencia Financiera de Colombia vía datos.gov.co (Portal de Datos Abiertos www.datos.gov.co, conjunto "Tasa de Cambio Representativa del Mercado - TRM", 32sa-8pi3). Licencia CC BY-SA 4.0. La fecha de última actualización del conjunto viene en sourceUpdatedAt.
+
+Set OPENAI_API_KEY to run generateText with the tools (or --mock to check the wiring without an LLM).
+
+$ node vercel_ai_sdk.mjs --mock   # (últimas líneas / last lines)
+tool call: get_chile_financial_indicators({"source":"uf","period":"current"})
+tool result: {"content":[{"type":"text","text":"{\"tool\":\"get_chile_financial_indicators\",\"count\":1,\"results\":[{\"indicator\":\"uf\",\"indicatorName\":\"Unidad de Fomento (UF)\",\"date\":\"2026-11-26\",\"ye...
+
+Answer: (mock) UF 41412.34 CLP al 2026-11-26.
 ```
 
 ## Licencia / License

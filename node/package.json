@@ -12,10 +12,15 @@
     "sismos": "node sismos.mjs",
     "calendario": "node calendario_rut.mjs",
     "sdk": "node agent_mcp_sdk.mjs",
-    "latam": "node latam.mjs"
+    "latam": "node latam.mjs",
+    "vercel-ai": "node vercel_ai_sdk.mjs"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.32.2"
+    "@ai-sdk/mcp": "^2.0.106",
+    "@ai-sdk/openai": "^4.0.125",
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "ai": "^7.0.183",
+    "zod": "^4.6.7"
   },
   "license": "MIT"
 }
