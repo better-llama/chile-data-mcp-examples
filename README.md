@@ -153,7 +153,7 @@ Consejo para agentes: llama primero `search_tools` con la tarea ("valor UF", "li
 
 **Windsurf** (`~/.codeium/windsurf/mcp_config.json`): [`config/windsurf-mcp_config.json`](config/windsurf-mcp_config.json) (`"serverUrl"`).
 
-**n8n**: agrega el nodo *MCP Client Tool* a un AI Agent, Endpoint `https://mcp.betterllama.com/mcp`, Server Transport *HTTP Streamable*, Authentication *None*. Elige "All" o selecciona herramientas. O importa el workflow listo [`n8n/chile-data-mcp-workflow.json`](n8n/chile-data-mcp-workflow.json) (menú *Import from File*: Chat Trigger + AI Agent + MCP Client Tool; solo elige tu credencial del modelo).
+**n8n**: agrega el nodo *MCP Client Tool* a un AI Agent, Endpoint `https://mcp.betterllama.com/mcp`, Server Transport *HTTP Streamable*, Authentication *None*. Elige "All" o selecciona herramientas. O importa el workflow listo [`n8n/chile-data-mcp-workflow.json`](n8n/chile-data-mcp-workflow.json) (menú *Import from File*: Chat Trigger + AI Agent + MCP Client Tool; solo elige tu credencial del modelo). Guía paso a paso con datos reales: [n8n + MCP: conecta tu agente de n8n a datos reales de Chile y LATAM](https://betterllama.com/blog/n8n-mcp-agente-datos-chile/).
 
 **curl**:
 
@@ -273,7 +273,7 @@ Tested with @mastra/mcp 2.11 and @mastra/core 1.86 (`new MCPClient({ servers: { 
 - Tool results come as a JSON string in `content[0].text`, with the official source attribution. Please cite the source when showing data.
 - `search_chile_public_tenders` and `get_santiago_stock_exchange_data` need your own free provider key (bring your own key). All other tools work without a key.
 - Client setup (Cursor, VS Code, Claude Desktop, Claude Code, Codex, Gemini CLI, Windsurf, n8n, curl): see the Spanish section above and `config/`. Claude Code: `claude mcp add --transport http betterllama https://mcp.betterllama.com/mcp`.
-- n8n: import [`n8n/chile-data-mcp-workflow.json`](n8n/chile-data-mcp-workflow.json) (*Import from File*): Chat Trigger + AI Agent + MCP Client Tool pointing to `https://mcp.betterllama.com/mcp` (HTTP Streamable, no auth). Just pick your chat-model credential.
+- n8n: import [`n8n/chile-data-mcp-workflow.json`](n8n/chile-data-mcp-workflow.json) (*Import from File*): Chat Trigger + AI Agent + MCP Client Tool pointing to `https://mcp.betterllama.com/mcp` (HTTP Streamable, no auth). Just pick your chat-model credential. Step-by-step guide with real data: [n8n + MCP: give your n8n AI agent real Chile and LATAM data](https://betterllama.com/en/blog/n8n-mcp-ai-agent-chile-data/).
 - Colombia: `colombia_secop_search` searches SECOP II signed contracts (`dataset: contratos`) or published processes (`procesos`) from datos.gov.co (CC BY-SA 4.0), no key. Guide: [Colombia SECOP API](https://betterllama.com/en/guides/colombia-secop-api/).
 - Peru: `peru_bcrp_series` returns official BCRP series (exchange rate, policy rate, inflation, GDP, reserves) by alias or BCRP code, no key; `python bcrp_peru.py --catalog` lists aliases. Guide: [Peru BCRP API](https://betterllama.com/en/guides/peru-bcrp-api/).
 - Mexico: `mexico_banxico_indicators` returns official Bank of Mexico (SIE) indicators: FIX MXN/USD exchange rate, UDIS, TIIE 28/91/182, overnight funding TIIE, policy target rate and annual inflation, no key (the server uses its own token; send `X-Banxico-Token` to use yours). Guide: [Mexico Banxico API](https://betterllama.com/en/guides/mexico-banxico-api/).
