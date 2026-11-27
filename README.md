@@ -122,7 +122,7 @@ Probado con @mastra/mcp 2.11 y @mastra/core 1.86 (`new MCPClient({ servers: { be
 | `node/agent_mcp_sdk.mjs` | Cliente con el SDK oficial de MCP para TypeScript/JavaScript (`StreamableHTTPClientTransport`). |
 | `node/vercel_ai_sdk.mjs` | Vercel AI SDK con `createMCPClient` (`@ai-sdk/mcp`): las 15 herramientas como tools del AI SDK, llamadas directas sin LLM (UF, dólar, TRM de Colombia) y `generateText` con las herramientas si defines `OPENAI_API_KEY` (`--mock` lo prueba sin LLM). Dependencias en `node/package.json`. |
 | `node/mastra_agent.mjs` | Mastra con `MCPClient` (`@mastra/mcp`): las 15 herramientas como tools de Mastra, llamadas directas sin LLM (UF, dólar, TRM de Colombia) y un `Agent` de `@mastra/core` con las herramientas si defines `OPENAI_API_KEY` (`--mock` lo prueba sin LLM). Node.js 22.13+. Dependencias en `node/package.json`. |
-| `config/` | Configuración para Cursor, VS Code, Claude Desktop, Windsurf, Gemini CLI y Codex. |
+| `config/` | Configuración para Cursor, VS Code (GitHub Copilot), Claude Desktop, Windsurf, Gemini CLI y Codex. |
 
 ### Herramientas
 
@@ -135,15 +135,17 @@ Consejo para agentes: llama primero `search_tools` con la tarea ("valor UF", "li
 
 ### Conectar un cliente MCP
 
+Guía paso a paso para Claude (conectores personalizados), Claude Desktop, Claude Code, Cursor y VS Code, con estas mismas configuraciones y salidas reales: [Cómo agregar un servidor MCP en Claude y Cursor (con datos reales de Chile y LATAM)](https://betterllama.com/blog/servidor-mcp-claude-cursor-datos-chile/).
+
 **Cursor** (`~/.cursor/mcp.json` o `.cursor/mcp.json`) y otros clientes que aceptan `url`: ver [`config/cursor-mcp.json`](config/cursor-mcp.json).
 
 ```json
 { "mcpServers": { "betterllama": { "url": "https://mcp.betterllama.com/mcp" } } }
 ```
 
-**VS Code** (`.vscode/mcp.json`): [`config/vscode-mcp.json`](config/vscode-mcp.json) (`"type": "http"`).
+**VS Code (GitHub Copilot)**: *Chat: Open Customizations* > *MCP Servers* > *Add Server* > HTTP, o el formato portable `mcpServers` de [`config/copilot-mcp-config.json`](config/copilot-mcp-config.json) en `~/.copilot/mcp-config.json` (o `.mcp.json` en la raíz del workspace). El formato anterior `.vscode/mcp.json` con `servers` ([`config/vscode-mcp.json`](config/vscode-mcp.json)) es del harness Local, que VS Code marca como obsoleto.
 
-**Claude Desktop / claude.ai**: Settings > Connectors > Add custom connector, URL `https://mcp.betterllama.com/mcp`. Si tu versión solo acepta servidores locales, usa el puente `mcp-remote` de [`config/claude_desktop_config.json`](config/claude_desktop_config.json) (requiere Node.js).
+**Claude Desktop / claude.ai**: Customize > Connectors > "+ Add" > Add custom connector, URL `https://mcp.betterllama.com/mcp`. Si tu versión solo acepta servidores locales, usa el puente `mcp-remote` de [`config/claude_desktop_config.json`](config/claude_desktop_config.json) (requiere Node.js).
 
 **Claude Code**: `claude mcp add --transport http betterllama https://mcp.betterllama.com/mcp`.
 
@@ -272,7 +274,7 @@ Tested with @mastra/mcp 2.11 and @mastra/core 1.86 (`new MCPClient({ servers: { 
 - The server is stateless Streamable HTTP; no auth. Every POST must send `Accept: application/json, text/event-stream`.
 - Tool results come as a JSON string in `content[0].text`, with the official source attribution. Please cite the source when showing data.
 - `search_chile_public_tenders` and `get_santiago_stock_exchange_data` need your own free provider key (bring your own key). All other tools work without a key.
-- Client setup (Cursor, VS Code, Claude Desktop, Claude Code, Codex, Gemini CLI, Windsurf, n8n, curl): see the Spanish section above and `config/`. Claude Code: `claude mcp add --transport http betterllama https://mcp.betterllama.com/mcp`.
+- Client setup (Cursor, VS Code, Claude Desktop, Claude Code, Codex, Gemini CLI, Windsurf, n8n, curl): see the Spanish section above and `config/`. Step-by-step guide for Claude (custom connectors), Claude Desktop, Claude Code, Cursor and VS Code with these configs and real output: [How to add an MCP server to Claude and Cursor (with real Chile and LATAM data)](https://betterllama.com/en/blog/mcp-server-claude-cursor-chile-data/). VS Code (GitHub Copilot): portable `mcpServers` format in [`config/copilot-mcp-config.json`](config/copilot-mcp-config.json) (`~/.copilot/mcp-config.json`). Claude Code: `claude mcp add --transport http betterllama https://mcp.betterllama.com/mcp`.
 - n8n: import [`n8n/chile-data-mcp-workflow.json`](n8n/chile-data-mcp-workflow.json) (*Import from File*): Chat Trigger + AI Agent + MCP Client Tool pointing to `https://mcp.betterllama.com/mcp` (HTTP Streamable, no auth). Just pick your chat-model credential. Step-by-step guide with real data: [n8n + MCP: give your n8n AI agent real Chile and LATAM data](https://betterllama.com/en/blog/n8n-mcp-ai-agent-chile-data/).
 - Colombia: `colombia_secop_search` searches SECOP II signed contracts (`dataset: contratos`) or published processes (`procesos`) from datos.gov.co (CC BY-SA 4.0), no key. Guide: [Colombia SECOP API](https://betterllama.com/en/guides/colombia-secop-api/).
 - Peru: `peru_bcrp_series` returns official BCRP series (exchange rate, policy rate, inflation, GDP, reserves) by alias or BCRP code, no key; `python bcrp_peru.py --catalog` lists aliases. Guide: [Peru BCRP API](https://betterllama.com/en/guides/peru-bcrp-api/).

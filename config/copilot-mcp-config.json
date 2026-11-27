@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "betterllama": {
+      "type": "http",
+      "url": "https://mcp.betterllama.com/mcp",
+      "tools": ["*"]
+    }
+  }
+}
