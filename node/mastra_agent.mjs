@@ -1,5 +1,5 @@
 // Mastra + Better Llama MCP: Chile, Colombia, Peru and Mexico public data as Mastra tools.
-// 1) Connects with MCPClient (@mastra/mcp, Streamable HTTP) and lists the 15 tools.
+// 1) Connects with MCPClient (@mastra/mcp, Streamable HTTP) and lists the 16 tools.
 // 2) Calls real tools directly, without an LLM: UF and dollar (CMF) and Colombia's TRM.
 // 3) If OPENAI_API_KEY is set, builds a Mastra Agent (@mastra/core) with the MCP tools and asks a question.
 //    Without a key, `--mock` checks the same Agent wiring with the AI SDK's mock model (real tool call, no LLM).

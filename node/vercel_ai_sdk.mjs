@@ -1,5 +1,5 @@
 // Vercel AI SDK (AI SDK 7) + Better Llama MCP: Chile, Colombia, Peru and Mexico public data as AI SDK tools.
-// 1) Connects with createMCPClient (@ai-sdk/mcp, Streamable HTTP transport) and lists the 15 tools.
+// 1) Connects with createMCPClient (@ai-sdk/mcp, Streamable HTTP transport) and lists the 16 tools.
 // 2) Calls real tools directly, without an LLM: UF and dollar (CMF) and Colombia's TRM.
 // 3) If OPENAI_API_KEY is set, runs generateText with the MCP tools so the model picks them.
 //    Without a key, `--mock` checks the same wiring with the AI SDK's mock model (real tool call, no LLM).

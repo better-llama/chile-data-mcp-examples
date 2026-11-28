@@ -1,6 +1,6 @@
 """LangChain / LangGraph agent with Better Llama's MCP (langchain-mcp-adapters).
 
-1) Loads the 15 MCP tools as LangChain tools (no API key needed).
+1) Loads the 16 MCP tools as LangChain tools (no API key needed).
 2) Calls two of them directly, without an LLM: today's UF and dollar (CMF)
    and the TPM (Central Bank of Chile).
 3) If OPENAI_API_KEY (or another provider key) is set, builds an agent with

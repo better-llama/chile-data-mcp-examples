@@ -1,6 +1,6 @@
 # chile-data-mcp-examples
 
-Ejemplos ejecutables para usar el servidor MCP gratuito (beta) de [Better Llama](https://betterllama.com) con datos públicos de Chile, Colombia, Perú y México: indicadores económicos (CMF, Banco Central), precios de bencina (CNE), sismos (USGS), Mercado Público, Chilexpress, Diario Oficial, mercado eléctrico, Bolsa de Santiago, feriados y RUT. Compras públicas de Colombia (SECOP II). Series del Banco Central de Reserva del Perú (BCRP) e indicadores del Banco de México (Banxico: tipo de cambio FIX, UDIS, TIIE, tasa objetivo, inflación). TRM de Colombia (tasa de cambio oficial COP/USD). Ejemplo CMF Chile (UF, dólar observado, euro, UTM, IPC y tasa máxima convencional). Feriados de Chile, días hábiles y plazos, validación de RUT y comunas con código CUT (`calendario_rut.py`, sin clave). Ejemplos en JavaScript para Node.js 18+ sin dependencias (carpeta [`node/`](node/)) y con el SDK oficial de MCP. Nuevo: agente con LangChain / LangGraph ([`python/langchain_agent.py`](python/langchain_agent.py)) y con Mastra ([`node/mastra_agent.mjs`](node/mastra_agent.mjs)).
+Ejemplos ejecutables para usar el servidor MCP gratuito (beta) de [Better Llama](https://betterllama.com) con datos públicos de Chile, Colombia, Perú y México: indicadores económicos (CMF, Banco Central), precios de bencina (CNE), sismos (USGS), Mercado Público, Chilexpress, Diario Oficial, mercado eléctrico, Bolsa de Santiago, feriados y RUT. Compras públicas de Colombia (SECOP II) y del Perú (SEACE / OECE, `seace_peru.py`). Series del Banco Central de Reserva del Perú (BCRP) e indicadores del Banco de México (Banxico: tipo de cambio FIX, UDIS, TIIE, tasa objetivo, inflación). TRM de Colombia (tasa de cambio oficial COP/USD). Ejemplo CMF Chile (UF, dólar observado, euro, UTM, IPC y tasa máxima convencional). Feriados de Chile, días hábiles y plazos, validación de RUT y comunas con código CUT (`calendario_rut.py`, sin clave). Ejemplos en JavaScript para Node.js 18+ sin dependencias (carpeta [`node/`](node/)) y con el SDK oficial de MCP. Nuevo: agente con LangChain / LangGraph ([`python/langchain_agent.py`](python/langchain_agent.py)) y con Mastra ([`node/mastra_agent.mjs`](node/mastra_agent.mjs)).
 
 Runnable examples (Python and Node.js) for Better Llama's free (beta) MCP server with Chilean, Colombian, Peruvian and Mexican public data. English below.
 
@@ -10,7 +10,7 @@ Runnable examples (Python and Node.js) for Better Llama's free (beta) MCP server
 | Transporte / Transport | Streamable HTTP, sin autenticación / anonymous |
 | Header requerido / required | `Accept: application/json, text/event-stream` |
 | Registry id | `com.betterllama/chile-data` |
-| Herramientas / Tools | 15 (`tools/list`) |
+| Herramientas / Tools | 16 (`tools/list`) |
 
 ---
 
@@ -24,11 +24,12 @@ cd chile-data-mcp-examples
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 cd python
-python list_tools.py       # lista las 15 herramientas
+python list_tools.py       # lista las 16 herramientas
 python indicadores.py      # UF, dólar, UTM (CMF) + TPM, IMACEC (Banco Central)
 python bencina.py 93 Ñuñoa # bencina más barata en una comuna (CNE)
 python secop_colombia.py software Antioquia 100000000  # contratos SECOP II (Colombia)
 python bcrp_peru.py        # tipo de cambio y tasa de referencia (BCRP, Perú)
+python seace_peru.py --category obras --region Cusco --min 1000000  # procesos SEACE (Perú)
 python banxico_mexico.py   # tipo de cambio FIX, UDIS y tasa objetivo (Banxico, México)
 python trm_colombia.py     # TRM vigente, dólar oficial COP/USD (Colombia)
 python cmf_chile.py        # UF, dólar observado, euro y UTM vigentes (CMF Chile)
@@ -46,7 +47,7 @@ Artículo con la guía paso a paso de los ejemplos de LangChain, OpenAI Agents S
 ```bash
 python3 -m venv .venv-lc && source .venv-lc/bin/activate
 pip install -r python/requirements-langchain.txt
-python python/langchain_agent.py                  # carga las 15 herramientas como tools de LangChain y llama UF, dólar y TPM sin LLM
+python python/langchain_agent.py                  # carga las 16 herramientas como tools de LangChain y llama UF, dólar y TPM sin LLM
 OPENAI_API_KEY=... python python/langchain_agent.py "¿Cuánto vale la UF hoy?"   # agente create_agent que elige las herramientas
 ```
 
@@ -56,7 +57,7 @@ Probado con langchain-mcp-adapters 0.3.2, langchain 1.5 y langgraph 1.2. Cualqui
 
 ```bash
 pip install -r python/requirements-openai-agents.txt
-python python/openai_agents_sdk.py                # lista las 15 herramientas y llama UF, dólar y TPM sin LLM
+python python/openai_agents_sdk.py                # lista las 16 herramientas y llama UF, dólar y TPM sin LLM
 OPENAI_API_KEY=... python python/openai_agents_sdk.py "¿Cuánto vale la UF hoy?"   # Agent con mcp_servers que elige las herramientas
 ```
 
@@ -66,7 +67,7 @@ Probado con openai-agents 0.26 y mcp 2.3 (sirve el mismo entorno que el resto de
 
 ```bash
 cd node
-node list_tools.mjs        # lista las 15 herramientas
+node list_tools.mjs        # lista las 16 herramientas
 node indicadores.mjs       # UF, dólar, UTM (CMF) + TPM, IMACEC (Banco Central)
 node sismos.mjs fuertes    # sismos M>=5 del último año; también hoy, cerca <lat> <lon> <km>
 node calendario_rut.mjs    # feriados que quedan del año; también plazo <fecha> <n>, rut <rut>...
@@ -80,7 +81,7 @@ Probado con Node.js 24 y @modelcontextprotocol/sdk 1.32.
 
 ```bash
 cd node && npm install
-node vercel_ai_sdk.mjs          # 15 herramientas como tools del AI SDK; UF, dólar (CMF) y TRM de Colombia sin LLM
+node vercel_ai_sdk.mjs          # 16 herramientas como tools del AI SDK; UF, dólar (CMF) y TRM de Colombia sin LLM
 node vercel_ai_sdk.mjs --mock   # prueba generateText con el modelo simulado de 'ai/test' (llamada real a la herramienta, sin LLM)
 OPENAI_API_KEY=... node vercel_ai_sdk.mjs "¿Cuánto vale la UF hoy y cuál es la TRM en Colombia?"   # generateText elige las herramientas
 ```
@@ -91,7 +92,7 @@ Probado con ai 7.0, @ai-sdk/mcp 2.0 y @ai-sdk/openai 4.0 (`createMCPClient({ tra
 
 ```bash
 cd node && npm install
-node mastra_agent.mjs          # 15 herramientas como tools de Mastra; UF, dólar (CMF) y TRM de Colombia sin LLM
+node mastra_agent.mjs          # 16 herramientas como tools de Mastra; UF, dólar (CMF) y TRM de Colombia sin LLM
 node mastra_agent.mjs --mock   # prueba un Agent de Mastra con el modelo simulado de 'ai/test' (llamada real a la herramienta, sin LLM)
 OPENAI_API_KEY=... node mastra_agent.mjs "¿Cuánto vale la UF hoy y cuál es la TRM en Colombia?"   # el Agent elige las herramientas
 ```
@@ -108,25 +109,26 @@ Probado con @mastra/mcp 2.11 y @mastra/core 1.86 (`new MCPClient({ servers: { be
 | `python/bencina.py` | `find_chile_fuel_prices` ordenado por precio. |
 | `python/secop_colombia.py` | `colombia_secop_search`: contratos o procesos de compras públicas de Colombia (SECOP II, datos.gov.co). |
 | `python/bcrp_peru.py` | `peru_bcrp_series`: series del BCRP (tipo de cambio, tasa de referencia, inflación, PBI, reservas) por alias o código; `--catalog` lista alias. |
+| `python/seace_peru.py` | `peru_public_procurement_search`: procesos de compras públicas del Perú (SEACE, datos abiertos OCDS de OECE, CC BY 4.0): texto libre, `--region`, `--category` (bienes, servicios, obras), `--method`, `--from`/`--to`, `--min` (valor referencial en soles) y `--max`. Muestra valor referencial, postores, monto adjudicado y empresas adjudicatarias (solo RUC 20). Instantánea mensual: los procesos de las últimas 4 a 8 semanas aún no aparecen. Sin clave. |
 | `python/banxico_mexico.py` | `mexico_banxico_indicators`: tipo de cambio FIX, UDIS, TIIE, tasa objetivo e inflación del Banco de México; `--date` o `--from/--to` para series. |
 | `python/trm_colombia.py` | `colombia_trm`: TRM de Colombia (pesos por dólar, Superintendencia Financiera vía datos.gov.co); sin argumentos la vigente, `--date` para un día o `--from/--to` para un rango. |
 | `python/cmf_chile.py` | `get_chile_financial_indicators`: indicadores oficiales de la CMF Chile; sin argumentos UF, dólar observado, euro y UTM vigentes; `--indicator` (uf, dolar, euro, utm, ipc, tmc, tip), `--date` para un día, `--year`/`--month` para una serie y `--tmc` para la tasa máxima convencional. |
 | `python/calendario_rut.py` | `chile_calendar_and_rut`: feriados de Chile (nacionales, regionales y comunales, 2022–2035), `es-feriado`, `plazo` (sumar N días hábiles), `habiles` (contar días hábiles entre dos fechas), `rut`/`dv` (validar RUT o calcular el dígito verificador) y `comunas` (códigos CUT por región). Opciones `--region`, `--comuna` y `--sabado`. Cálculo local, sin clave ni datos personales. |
 | `python/sismos.py` | `get_chile_earthquakes`: sismos de Chile (USGS, dominio público) con hora de Chile; `hoy`, `fuertes` (M>=5 del último año por magnitud), `cerca <lat> <lon> <km>`, `tsunami` (últimos 10 años) y `percibidos`; opciones `--min`, `--max` e `--islas` (incluye Isla de Pascua y Juan Fernández). Sin clave. |
 | `python/agent_mcp_sdk.py` | Cliente con el SDK oficial de MCP para Python (streamable HTTP). |
-| `python/langchain_agent.py` | LangChain / LangGraph con `langchain-mcp-adapters`: las 15 herramientas como tools de LangChain, llamadas directas sin LLM (UF, dólar, TPM) y un agente `create_agent` si defines `OPENAI_API_KEY` o `LLM_MODEL`. Dependencias en `python/requirements-langchain.txt`. |
-| `python/openai_agents_sdk.py` | OpenAI Agents SDK con `MCPServerStreamableHttp`: lista las 15 herramientas, llamadas directas sin LLM (UF, dólar, TPM) y un `Agent` con `mcp_servers` si defines `OPENAI_API_KEY`. Dependencias en `python/requirements-openai-agents.txt`. |
+| `python/langchain_agent.py` | LangChain / LangGraph con `langchain-mcp-adapters`: las 16 herramientas como tools de LangChain, llamadas directas sin LLM (UF, dólar, TPM) y un agente `create_agent` si defines `OPENAI_API_KEY` o `LLM_MODEL`. Dependencias en `python/requirements-langchain.txt`. |
+| `python/openai_agents_sdk.py` | OpenAI Agents SDK con `MCPServerStreamableHttp`: lista las 16 herramientas, llamadas directas sin LLM (UF, dólar, TPM) y un `Agent` con `mcp_servers` si defines `OPENAI_API_KEY`. Dependencias en `python/requirements-openai-agents.txt`. |
 | `node/mcp_http.mjs` | Cliente JSON-RPC mínimo en JavaScript con `fetch` (Node.js 18+), sin dependencias; mismo contrato que `mcp_http.py`. |
 | `node/list_tools.mjs`, `node/indicadores.mjs`, `node/sismos.mjs`, `node/calendario_rut.mjs` | Versiones en Node.js de los ejemplos de Python (herramientas, indicadores CMF/Banco Central, sismos, feriados/plazos/RUT). |
 | `node/latam.mjs` | `colombia_trm`, `peru_bcrp_series` y `mexico_banxico_indicators` en un solo script: TRM de Colombia, tipo de cambio y tasa de referencia del BCRP (Perú), FIX, UDIS y tasa objetivo de Banxico (México). Argumentos `co`, `pe` o `mx` para un solo país. Sin clave. |
 | `node/agent_mcp_sdk.mjs` | Cliente con el SDK oficial de MCP para TypeScript/JavaScript (`StreamableHTTPClientTransport`). |
-| `node/vercel_ai_sdk.mjs` | Vercel AI SDK con `createMCPClient` (`@ai-sdk/mcp`): las 15 herramientas como tools del AI SDK, llamadas directas sin LLM (UF, dólar, TRM de Colombia) y `generateText` con las herramientas si defines `OPENAI_API_KEY` (`--mock` lo prueba sin LLM). Dependencias en `node/package.json`. |
-| `node/mastra_agent.mjs` | Mastra con `MCPClient` (`@mastra/mcp`): las 15 herramientas como tools de Mastra, llamadas directas sin LLM (UF, dólar, TRM de Colombia) y un `Agent` de `@mastra/core` con las herramientas si defines `OPENAI_API_KEY` (`--mock` lo prueba sin LLM). Node.js 22.13+. Dependencias en `node/package.json`. |
+| `node/vercel_ai_sdk.mjs` | Vercel AI SDK con `createMCPClient` (`@ai-sdk/mcp`): las 16 herramientas como tools del AI SDK, llamadas directas sin LLM (UF, dólar, TRM de Colombia) y `generateText` con las herramientas si defines `OPENAI_API_KEY` (`--mock` lo prueba sin LLM). Dependencias en `node/package.json`. |
+| `node/mastra_agent.mjs` | Mastra con `MCPClient` (`@mastra/mcp`): las 16 herramientas como tools de Mastra, llamadas directas sin LLM (UF, dólar, TRM de Colombia) y un `Agent` de `@mastra/core` con las herramientas si defines `OPENAI_API_KEY` (`--mock` lo prueba sin LLM). Node.js 22.13+. Dependencias en `node/package.json`. |
 | `config/` | Configuración para Cursor, VS Code (GitHub Copilot), Claude Desktop, Windsurf, Gemini CLI y Codex. |
 
 ### Herramientas
 
-- Sin clave: `search_tools`, `get_chile_financial_indicators`, `get_chile_central_bank_series`, `find_chile_fuel_prices`, `get_chile_electricity_market`, `search_chile_official_gazette`, `get_chile_earthquakes`, `chile_calendar_and_rut`, `colombia_secop_search`, `colombia_trm`, `peru_bcrp_series`, `mexico_banxico_indicators` (algunas usan una clave compartida del servidor; no necesitas la tuya).
+- Sin clave: `search_tools`, `get_chile_financial_indicators`, `get_chile_central_bank_series`, `find_chile_fuel_prices`, `get_chile_electricity_market`, `search_chile_official_gazette`, `get_chile_earthquakes`, `chile_calendar_and_rut`, `colombia_secop_search`, `colombia_trm`, `peru_bcrp_series`, `peru_public_procurement_search`, `mexico_banxico_indicators` (algunas usan una clave compartida del servidor; no necesitas la tuya).
 - Trae tu clave gratuita: `search_chile_public_tenders` (ticket de [ChileCompra](https://www.chilecompra.cl/api/), argumento `ticket` o header `X-MercadoPublico-Ticket`), `get_santiago_stock_exchange_data` (`apiKey`). `chilexpress_shipping` acepta tus claves para cotizar y seguir envíos.
 
 Las claves se envían por solicitud y el servidor no las guarda. No las subas a git: usa variables de entorno.
@@ -175,6 +177,7 @@ curl -s https://mcp.betterllama.com/mcp \
 - [API sismos Chile](https://betterllama.com/guias/api-sismos-chile/)
 - [API SECOP II Colombia](https://betterllama.com/guias/api-secop-colombia/)
 - [API BCRP Perú](https://betterllama.com/guias/api-bcrp-peru/)
+- [API SEACE Perú (compras públicas)](https://betterllama.com/guias/api-seace-peru/)
 - [API Banxico México](https://betterllama.com/guias/api-banxico-mexico/)
 - [API TRM Colombia](https://betterllama.com/guias/api-trm-colombia/)
 - [API CMF Chile: UF, dólar, euro, UTM y TMC](https://betterllama.com/guias/api-cmf-chile/)
@@ -195,11 +198,12 @@ cd chile-data-mcp-examples
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 cd python
-python list_tools.py        # list the 15 tools
+python list_tools.py        # list the 16 tools
 python indicadores.py       # UF, USD, UTM (CMF) + policy rate, IMACEC (Central Bank)
 python bencina.py 93 Ñuñoa  # cheapest gasoline in a comuna (CNE)
 python secop_colombia.py software Antioquia 100000000  # Colombia SECOP II contracts
 python bcrp_peru.py         # Peru exchange rate + policy rate (BCRP)
+python seace_peru.py computadoras --category bienes  # Peru public procurement (SEACE)
 python banxico_mexico.py    # Mexico FIX exchange rate, UDIS, policy rate (Banxico)
 python trm_colombia.py      # Colombia official COP/USD exchange rate (TRM)
 python cmf_chile.py         # Chile UF, observed USD, EUR and UTM (CMF)
@@ -217,7 +221,7 @@ Step-by-step article for the LangChain, OpenAI Agents SDK and Vercel AI SDK exam
 ```bash
 python3 -m venv .venv-lc && source .venv-lc/bin/activate
 pip install -r python/requirements-langchain.txt
-python python/langchain_agent.py                  # loads the 15 tools as LangChain tools; calls UF, USD and policy rate without an LLM
+python python/langchain_agent.py                  # loads the 16 tools as LangChain tools; calls UF, USD and policy rate without an LLM
 OPENAI_API_KEY=... python python/langchain_agent.py "What is the UF today?"   # create_agent picks the tools
 ```
 
@@ -227,7 +231,7 @@ Tested with langchain-mcp-adapters 0.3.2, langchain 1.5 and langgraph 1.2. Any `
 
 ```bash
 pip install -r python/requirements-openai-agents.txt
-python python/openai_agents_sdk.py                # lists the 15 tools; calls UF, USD and policy rate without an LLM
+python python/openai_agents_sdk.py                # lists the 16 tools; calls UF, USD and policy rate without an LLM
 OPENAI_API_KEY=... python python/openai_agents_sdk.py "What is the UF today?"   # Agent with mcp_servers picks the tools
 ```
 
@@ -237,7 +241,7 @@ Tested with openai-agents 0.26 and mcp 2.3 (same environment as the other Python
 
 ```bash
 cd node
-node list_tools.mjs        # list the 15 tools
+node list_tools.mjs        # list the 16 tools
 node indicadores.mjs       # UF, USD, UTM (CMF) + policy rate, IMACEC (Central Bank)
 node sismos.mjs fuertes    # Chile earthquakes M>=5 in the last year; also hoy, cerca <lat> <lon> <km>
 node calendario_rut.mjs    # Chile holidays left this year; also plazo <date> <n>, rut <rut>...
@@ -251,7 +255,7 @@ npm install && node agent_mcp_sdk.mjs   # official @modelcontextprotocol/sdk: se
 
 ```bash
 cd node && npm install
-node vercel_ai_sdk.mjs          # 15 tools as AI SDK tools; UF, USD (CMF) and Colombia's TRM without an LLM
+node vercel_ai_sdk.mjs          # 16 tools as AI SDK tools; UF, USD (CMF) and Colombia's TRM without an LLM
 node vercel_ai_sdk.mjs --mock   # checks generateText with the mock model from 'ai/test' (real tool call, no LLM)
 OPENAI_API_KEY=... node vercel_ai_sdk.mjs "What is the UF today and Colombia's TRM?"   # generateText picks the tools
 ```
@@ -262,7 +266,7 @@ Tested with ai 7.0, @ai-sdk/mcp 2.0 and @ai-sdk/openai 4.0 (`createMCPClient({ t
 
 ```bash
 cd node && npm install
-node mastra_agent.mjs          # 15 tools as Mastra tools; UF, USD (CMF) and Colombia's TRM without an LLM
+node mastra_agent.mjs          # 16 tools as Mastra tools; UF, USD (CMF) and Colombia's TRM without an LLM
 node mastra_agent.mjs --mock   # checks a Mastra Agent with the mock model from 'ai/test' (real tool call, no LLM)
 OPENAI_API_KEY=... node mastra_agent.mjs "What is the UF today and Colombia's TRM?"   # the Agent picks the tools
 ```
@@ -278,6 +282,7 @@ Tested with @mastra/mcp 2.11 and @mastra/core 1.86 (`new MCPClient({ servers: { 
 - n8n: import [`n8n/chile-data-mcp-workflow.json`](n8n/chile-data-mcp-workflow.json) (*Import from File*): Chat Trigger + AI Agent + MCP Client Tool pointing to `https://mcp.betterllama.com/mcp` (HTTP Streamable, no auth). Just pick your chat-model credential. Step-by-step guide with real data: [n8n + MCP: give your n8n AI agent real Chile and LATAM data](https://betterllama.com/en/blog/n8n-mcp-ai-agent-chile-data/).
 - Colombia: `colombia_secop_search` searches SECOP II signed contracts (`dataset: contratos`) or published processes (`procesos`) from datos.gov.co (CC BY-SA 4.0), no key. Guide: [Colombia SECOP API](https://betterllama.com/en/guides/colombia-secop-api/).
 - Peru: `peru_bcrp_series` returns official BCRP series (exchange rate, policy rate, inflation, GDP, reserves) by alias or BCRP code, no key; `python bcrp_peru.py --catalog` lists aliases. Guide: [Peru BCRP API](https://betterllama.com/en/guides/peru-bcrp-api/).
+- Peru public procurement: `peru_public_procurement_search` searches Peruvian government procurement processes published on SEACE (OECE open data in OCDS format, via the Open Contracting Partnership Data Registry, CC BY 4.0), no key. Filters: free text, region, category (bienes, servicios, obras), procurement method, publication dates and minimum reference value in PEN. Returns entity, object, method, reference value, bidders, awarded amount and awarded companies (RUC 20 only; natural persons are omitted). Monthly snapshot: the last 4-8 weeks are not there yet (see the coverage warning), so use it for market and competitor analysis, not to bid on open tenders. `python seace_peru.py --method "Licitación Pública" --category obras --min 20000000 --from 2026-09-01`. Guide: [Peru public procurement API](https://betterllama.com/en/guides/peru-public-procurement-api/).
 - Mexico: `mexico_banxico_indicators` returns official Bank of Mexico (SIE) indicators: FIX MXN/USD exchange rate, UDIS, TIIE 28/91/182, overnight funding TIIE, policy target rate and annual inflation, no key (the server uses its own token; send `X-Banxico-Token` to use yours). Guide: [Mexico Banxico API](https://betterllama.com/en/guides/mexico-banxico-api/).
 - Colombia TRM: `colombia_trm` returns Colombia's official COP/USD exchange rate (TRM) certified by the Superintendencia Financiera, via datos.gov.co (CC BY-SA 4.0), no key. No arguments: latest TRM; `date` for the TRM in force on a day (weekend/holiday rates are certified the previous business day, so each row has `date_from`/`date_to`); `fromDate`/`toDate` for a range (`python trm_colombia.py --from 2026-11-10 --to 2026-11-20`). Guide: [Colombia TRM API](https://betterllama.com/en/guides/colombia-trm-api/).
 - Chile CMF: `get_chile_financial_indicators` returns official indicators from Chile's Comisión para el Mercado Financiero (CMF): UF, observed USD (dólar observado), EUR, UTM, CPI (IPC), maximum conventional interest rate (TMC) and TIP, no key (the server uses its own CMF key). `python cmf_chile.py` prints the latest UF, USD, EUR and UTM; `--indicator dolar --date 2026-11-20` for one day, `--indicator uf --year 2026 --month 11` for a series, `--tmc` for the TMC. USD and EUR are only published on banking days: on weekends you get the last published value plus a note, and when CMF has already published the next banking day's rate in advance, the note includes it. Guide: [Chile CMF API](https://betterllama.com/en/guides/chile-cmf-api/).
@@ -426,6 +431,69 @@ Note: PD04638PD: se devuelven 5 de 31 datos (los más recientes). Sube maxItems 
 Note: PD04638PD: 3 periodo(s) sin dato publicado ("n.d.", p. ej. días sin operación o dato aún no disponible) se omitieron.
 
 Fuente: Banco Central de Reserva del Perú (BCRP), BCRPData — estadisticas.bcrp.gob.pe. Reproducción permitida citando la fuente (Condiciones de uso de BCRPData). En series de fuente externa (p. ej. IPC elaborado por el INEI) la responsabilidad del dato recae en la entidad que lo provee. Datos sin modificar salvo formato; no constituyen asesoramiento.
+```
+
+### SEACE (Perú)
+
+`python seace_peru.py` (2026-11-28, hora de Chile / Chile time):
+
+```text
+SEACE Peru (query=computadoras): 5 shown, newest first
+
+  2026-09-28  no reference value  [bienes] Licitación Pública Abreviada
+  GOBIERNO REGIONAL DE PUNO SEDE CENTRAL (PUNO)  LP-ABR-277-2026-OC/GR  PUNO-1
+  ADQUISICION DE COMPUTADORAS DE ESCRITORIO i5, SEGÚN REQUERIMIENTO Y ESPECIFICACIONES TECNICAS PARA EL PROYECTO: MEJORAMIENTO SERVICIO INTEGR
+
+  2026-09-16  no reference value  [servicios] Concurso Público Abreviado
+  UNIDAD DE GESTION EDUCATIVA LOCAL UGEL 06 - VITARTE (LIMA)  CP-ABR-2-2026-UGEL 06 - VITARTE-1
+  SERVICIO DE MANTENIMIENTO PREVENTIVO DE COMPUTADORES PORTATILES (LAPTOPS), COMPUTADORAS (PC) E IMPRESORAS EN LAS INSTITUCIONES EDUCATIVAS CO
+
+  2026-09-14  no reference value  [bienes] Comparación de Precios
+  MUNICIPALIDAD PROVINCIAL DE BARRANCA (BARRANCA)  COMPRE-COMPRE-1-2026-OC/MPB-1
+  ADQUISICIÓN DE COMPUTADORAS DE ESCRITORIO DESTINADAS AL DESARROLLO DE ACTIVIDADES EDUCATIVAS, LAS CUALES RESPONDEN A LAS NECESIDADES DE LA P
+
+  2026-08-26  S/ 78,298  [bienes] Comparación de Precios
+  MUNICIPALIDAD PROVINCIAL DE BARRANCA (BARRANCA)  COMPRE-COMPRE-1-2026-OC/MPB-1
+  ADQUISICIÓN DE COMPUTADORAS DE ESCRITORIO DESTINADAS AL DESARROLLO DE ACTIVIDADES EDUCATIVAS, LAS CUALES RESPONDEN A LAS NECESIDADES DE LA P
+  Bidders: 3  Awarded: S/ 78,298  to VAYER´S CONTRATISTAS GENERALES E.I.R.L. (RUC 20602624987)
+
+  2026-08-25  S/ 104,100  [servicios] Regímen Especial
+  OFICINA NACIONAL DE PROCESOS ELECTORALES (LIMA)  RES-PROC-102-2026-EG-ONPE-1
+  SERVICIO DE ALQUILER DE COMPUTADORAS PARA OFICINA ELECCIONES GENERALES 2026
+  Bidders: 3  Awarded: S/ 71,117  to MUR TECNOLOGIA S.A.C. (RUC 20603786301)
+
+Note: Datos publicados entre 2026-07-01 y 2026-10-02 (instantánea mensual; los procesos más recientes aún no están). Para postular a procesos vigentes usa el SEACE.
+
+Note: Se devolvieron 5 resultados (tope); acota la búsqueda o sube maxItems (máx. 100).
+
+Fuente: Organismo Especializado para las Contrataciones Públicas Eficientes (OECE), SEACE — datos abiertos en formato OCDS (contratacionesabiertas.oece.gob.pe), obtenidos del Open Contracting Partnership Data Registry (data.open-contracting.org). Licencia CC BY 4.0. Datos sin modificar salvo formato y omisión de personas naturales.
+Source: https://data.open-contracting.org/en/publication/135 (updated 2026-11-01)
+```
+
+`python seace_peru.py --category obras --region Cusco --min 1000000 --max 3` (2026-11-28):
+
+```text
+SEACE Peru (region=Cusco, category=obras, minValue=1000000.0): 3 shown, newest first
+
+  2026-09-30  S/ 7,247,181  [obras] Licitación Pública Abreviada
+  EMPRESA REGIONAL DE SERVICIOS PUBLICOS DE ELECTRICIDAD DEL SUR ESTE S.A. (CUSCO)  LP-ABR-15-2026-ELSE-1
+  REMODELACIÓN DE LÍNEA DE TRANSMISIÓN; EN EL(LA) DERIVACIÓN SANTA MARÍA ¿ SANTA MARÍA 0,35 KM EN 60 KV + 01 CELDA DE LÍNEA EN 60 KV A S.E. MA
+
+  2026-08-18  S/ 9,314,835  [obras] Licitación Pública
+  EMPRESA REGIONAL DE SERVICIOS PUBLICOS DE ELECTRICIDAD DEL SUR ESTE S.A. (CUSCO)  LP-SM-17-2026-ELSE-1
+  CONSTRUCCIÓN DE LÍNEA PRIMARIA; EN EL(LA) NUEVO ALIMENTADOR PM09 DE LA SET PUERTO MALDONADO POR TRANSFERENCIA DE CARGA DISTRITO DE LABERINTO
+
+  2026-08-11  S/ 5,297,024  [obras] Regímen Especial
+  MUNICIPALIDAD DISTRITAL DE SAN JERONIMO - CUSCO (CUSCO)  RES-PROC-4-2025-MDSJ/LEY29230-1
+  EJECUCION DE OBRA: MEJORAMIENTO Y AMPLIACION DEL SERVICIO DE AGUA POTABLE Y ALCANTARILLADO EN EL ANEXO PALLPANCAY -COLLPARO Y EL SECTOR KAYR
+  Bidders: 1  Awarded: S/ 5,297,024  to CORPORACION MONTENEGRO S.R.L. (RUC 20526910797)
+
+Note: Datos publicados entre 2026-07-01 y 2026-10-02 (instantánea mensual; los procesos más recientes aún no están). Para postular a procesos vigentes usa el SEACE.
+
+Note: Se devolvieron 3 resultados (tope); acota la búsqueda o sube maxItems (máx. 100).
+
+Fuente: Organismo Especializado para las Contrataciones Públicas Eficientes (OECE), SEACE — datos abiertos en formato OCDS (contratacionesabiertas.oece.gob.pe), obtenidos del Open Contracting Partnership Data Registry (data.open-contracting.org). Licencia CC BY 4.0. Datos sin modificar salvo formato y omisión de personas naturales.
+Source: https://data.open-contracting.org/en/publication/135 (updated 2026-11-01)
 ```
 
 ### Banxico (México)
